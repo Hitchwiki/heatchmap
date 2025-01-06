@@ -1,0 +1,13 @@
+name: heatchmap
+dependencies:
+  - pip
+  - python=3.10
+  - pip:
+    - geopandas
+    - numpy
+    - pandas
+    - scikit-learn
+    - scipy
+    - shapely
+    - tqdm
+
