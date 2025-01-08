@@ -1,10 +1,7 @@
-# All things data science on the data from [Hitchmap](https://hitchmap.com).
+# Machine Learning Models for Hitchhiking Waiting Time Prediction
 
 [![PyPI version](https://badge.fury.io/py/heatchmap.svg)](https://badge.fury.io/py/heatchmap)
 
-`cleaning/` ... ideas how to tidy up the data
-
-`visualization/` ... hitchhiking maps - using the data to build models that can predict hitchhiking waiting time and to draw maps
 
 ## Installation
 
