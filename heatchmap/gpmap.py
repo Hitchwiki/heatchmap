@@ -22,12 +22,20 @@ from utils.utils_data import get_points
 from map_based_model import MapBasedModel
 from utils.utils_models import fit_gpr_silent
 import glob
+from huggingface_hub import hf_hub_download
 
 class GPMap(MapBasedModel):
     def __init__(self, region="world", resolution=10, version="prod"):
-        self.gpr_path = "models/kernel.pkl"
+        
         self.points_path = "dump.sqlite"
 
+        if os.path.exists("models/kernel.pkl"):
+            self.gpr_path = "models/kernel.pkl"
+        else:
+            REPO_ID = "tillwenke/heatchmap-model"
+            FILENAME = "Unfitted_GaussianProcess_TransformedTargetRegressorWithUncertainty.pkl"
+            self.gpr_path = hf_hub_download(repo_id=REPO_ID, filename=FILENAME)
+            
         with open(self.gpr_path, "rb") as file:
             self.gpr = pickle.load(file)
 
