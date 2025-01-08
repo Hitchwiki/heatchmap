@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="heatchmap",
-    version="0.1.0",
+    version="0.3.0",
     author="Hitchwiki",
     author_email="info@hitchwiki.org",
     description="A package for estimation and visualization of hitchhiking quality.",
