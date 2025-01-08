@@ -4,6 +4,7 @@ dependencies:
   - python=3.10
   - pip:
     - geopandas
+    - huggingface_hub
     - numpy
     - pandas
     - scikit-learn
