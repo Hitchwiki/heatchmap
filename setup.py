@@ -27,7 +27,7 @@ setuptools.setup(
         "Source Code": "https://github.com/Hitchwiki/heatchmap",
     },
     author="Hitchwiki",
-    author_email="info@hitchwiki.org"
+    author_email="info@hitchwiki.org",
     license="MIT",
     classifiers=[
         "Intended Audience :: Science/Research",
