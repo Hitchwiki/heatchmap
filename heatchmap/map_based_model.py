@@ -1,7 +1,10 @@
+"""Map-based model for hitchhiking waiting times."""
+import os
+import time
+
 import geopandas as gpd
 import matplotlib.colors as colors
 import numpy as np
-import pandas as pd
 import rasterio
 import rasterio.mask
 import rasterio.plot
@@ -15,10 +18,6 @@ from shapely.ops import unary_union
 from shapely.validation import make_valid
 from sklearn.base import BaseEstimator, RegressorMixin
 from tqdm.auto import tqdm
-import time
-import os
-import pickle
-from utils.utils_data import get_points
 
 tqdm.pandas()
 
@@ -69,6 +68,7 @@ class MapBasedModel(BaseEstimator, RegressorMixin):
     
 
     def get_map_boundary(self):
+        """Get the boundary of the map."""
         # [lon_bottom_left, lat_bottom_left, lon_top_right, lat_top_right]
         maps = {
             "germany": [3.0, 48.0, 16.0, 55.0],
@@ -109,6 +109,7 @@ class MapBasedModel(BaseEstimator, RegressorMixin):
         return anchor
 
     def map_to_polygon(self):
+        """Convert map boundary to polygon."""
         # create boundary polygon
         polygon = Polygon(
             [
@@ -127,7 +128,6 @@ class MapBasedModel(BaseEstimator, RegressorMixin):
 
     def save_as_rasterio(self):
         """Saves as .tif raster for rasterio."""
-
         polygon_vertices_x, polygon_vertices_y, pixel_width, pixel_height = (
             self.define_raster()
         )
@@ -180,7 +180,6 @@ class MapBasedModel(BaseEstimator, RegressorMixin):
 
     def get_map_grid(self) -> np.array:
         """Create pixel grid for map."""
-
         xx, yy, pixel_width, pixel_height = self.define_raster()
         # handling special case when map spans over the 180 degree meridian
         if not (xx[0] > 0 and xx[2] < 0):
@@ -434,7 +433,7 @@ class MapBasedModel(BaseEstimator, RegressorMixin):
             fontsize_factor = 1.0 if self.region == "world" else 1.2
             region_text = self.region.replace("_", " ").title()
             if self.region == "world":
-                text = f"""Hitchhiking waiting times
+                text = """Hitchhiking waiting times
 worldwide"""
             else:
                 text = f"""Hitchhiking waiting times
@@ -449,7 +448,7 @@ in {region_text}"""
                 verticalalignment="top",
                 fontweight="bold",
             )
-            text = f"""
+            text = """
 
 
 

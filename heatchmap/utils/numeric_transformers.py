@@ -1,8 +1,6 @@
 # from https://github.com/scikit-learn/scikit-learn/issues/24638
 
-from dataclasses import dataclass
 from enum import Enum
-from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -13,8 +11,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 # see https://en.wikipedia.org/wiki/Log-normal_distribution#Arithmetic_moments
 # needed for Target transformer when we have std
 def inverse_log_mean(log_mean, log_std):
-    """
-    Calculate the mean in the original scale for a log-normal distribution.
+    """Calculate the mean in the original scale for a log-normal distribution.
 
     This function transforms the mean from the logarithmic scale back to the
     original scale. It corrects for the skewness of the log-normal distribution
@@ -25,8 +22,7 @@ def inverse_log_mean(log_mean, log_std):
 
 
 def inverse_log_std(log_mean, log_std):
-    """
-    Calculate the standard deviation in the original scale for a log-normal distribution.
+    """Calculate the standard deviation in the original scale for a log-normal distribution.
 
     This function transforms the standard deviation from the logarithmic scale
     back to the original scale. It leverages the properties of the log-normal
@@ -39,8 +35,7 @@ def inverse_log_std(log_mean, log_std):
 
 
 def inverse_sqrt_mean(sqrt_mean, sqrt_std):
-    """
-    This function calculates the mean in the original space.
+    """This function calculates the mean in the original space.
 
     The mean of squared values isn't just the square of the mean of the values
     because squaring is a non-linear operation. A reasonable approximation is
@@ -51,8 +46,7 @@ def inverse_sqrt_mean(sqrt_mean, sqrt_std):
 
 
 def inverse_sqrt_std(sqrt_mean, sqrt_std):
-    """
-    This function calculates the standard deviation in the original space.
+    """This function calculates the standard deviation in the original space.
 
     We need to consider how variance (the square of the standard deviation)
     transforms. The variance of the squared values can be approximated as the
@@ -173,8 +167,7 @@ class NumericTransformerOption(Enum):
 def get_transformer_with_least_skew(
     y: list[float | int | None] | pd.Series | np.ndarray,
 ) -> NumericTransformerOption:
-    """
-    Apply each available transformation to the data and return the one with the
+    """Apply each available transformation to the data and return the one with the
     lowest abs skew.
     """
     try:

@@ -1,14 +1,8 @@
-import geopandas as gpd
-import numpy as np
-import pandas as pd
-import rasterio
-import rasterio.plot
-import shapely
-from matplotlib import pyplot as plt
-from shapely.geometry import Point
-from tqdm import tqdm
 import sqlite3
 
+import geopandas as gpd
+import pandas as pd
+import shapely
 from utils_map import *
 
 DAY = 24 * 60

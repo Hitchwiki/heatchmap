@@ -1,15 +1,8 @@
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import rasterio
-import rasterio.mask
-import rasterio.plot
 from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
-from sklearn.exceptions import ConvergenceWarning
-from sklearn.utils._testing import ignore_warnings
-from tqdm import tqdm
-
 from numeric_transformers import exp_minus_tiny, log_plus_tiny
 from utils_data import get_points
 from utils_map import *

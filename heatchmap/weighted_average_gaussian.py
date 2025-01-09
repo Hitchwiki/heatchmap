@@ -1,25 +1,8 @@
-import geopandas as gpd
-import matplotlib.colors as colors
 import numpy as np
 import pandas as pd
-import rasterio
-import rasterio.mask
-import rasterio.plot
-from matplotlib import cm
-from matplotlib import pyplot as plt
-from rasterio.control import GroundControlPoint as GCP
-from rasterio.crs import CRS
-from rasterio.transform import from_gcps
-from shapely.geometry import Point, Polygon
-from shapely.ops import unary_union
-from shapely.validation import make_valid
-from sklearn.base import BaseEstimator, RegressorMixin
-from tqdm.auto import tqdm
-import time
-import os
-import pickle
-from utils.utils_data import get_points
 from map_based_model import MapBasedModel
+from shapely.geometry import Point
+from tqdm.auto import tqdm
 
 tqdm.pandas()
 

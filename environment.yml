@@ -7,6 +7,7 @@ dependencies:
     - huggingface_hub
     - numpy
     - pandas
+    - ruff
     - scikit-learn
     - scipy
     - shapely

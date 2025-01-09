@@ -1,32 +1,29 @@
+"""Module to recalculate the map with the current Gaussian Process model."""
+import glob
+import os
+import pickle
+import time
+
 import geopandas as gpd
-import matplotlib.colors as colors
 import numpy as np
 import pandas as pd
 import rasterio
 import rasterio.mask
 import rasterio.plot
-from matplotlib import cm
+from huggingface_hub import hf_hub_download
+from map_based_model import MapBasedModel
 from matplotlib import pyplot as plt
 from rasterio.control import GroundControlPoint as GCP
 from rasterio.crs import CRS
 from rasterio.transform import from_gcps
-from shapely.geometry import Point, Polygon
-from shapely.ops import unary_union
 from shapely.validation import make_valid
-from sklearn.base import BaseEstimator, RegressorMixin
 from tqdm.auto import tqdm
-import time
-import os
-import pickle
 from utils.utils_data import get_points
-from map_based_model import MapBasedModel
 from utils.utils_models import fit_gpr_silent
-import glob
-from huggingface_hub import hf_hub_download
+
 
 class GPMap(MapBasedModel):
     def __init__(self, region="world", resolution=10, version="prod"):
-        
         self.points_path = "dump.sqlite"
 
         if os.path.exists("models/kernel.pkl"):
@@ -115,14 +112,18 @@ class GPMap(MapBasedModel):
         print(
             f"For map of shape: {self.raw_raster.shape} that is {self.raw_raster.shape[0] * self.raw_raster.shape[1]} pixels and an effective time per pixel of {(time.time() - start) / (self.raw_raster.shape[0] * self.raw_raster.shape[1])} seconds"
         )
-        print((f"Only {self.recalc_raster.sum()} pixels were recalculated. That is {self.recalc_raster.sum() / (self.raw_raster.shape[0] * self.raw_raster.shape[1]) * 100}% of the map."))
+        print(f"Only {self.recalc_raster.sum()} pixels were recalculated. That is {self.recalc_raster.sum() / (self.raw_raster.shape[0] * self.raw_raster.shape[1]) * 100}% of the map.")
         print(f"And time per recalculated pixel was {(time.time() - start) / self.recalc_raster.sum()} seconds")
 
         np.savetxt(self.map_path, self.raw_raster)
         self.save_as_rasterio()
 
-    def show_raster(self, raster):
-        """Show the raster in a plot."""
+    def show_raster(self, raster: np.array):
+        """Show the raster in a plot.
+        
+        Args:
+            raster (np.array): 2D np.array of the raster to be shown.
+        """
         plt.imshow(raster, cmap="viridis", interpolation="nearest")
         plt.colorbar()
         plt.xlabel("Longitude")
@@ -151,7 +152,6 @@ class GPMap(MapBasedModel):
         
     def get_recalc_raster(self):
         """Creats 2d np.array of raster where only pixels that are 1 should be recalculated."""
-        
         recalc_radius_pixels = int(np.ceil(abs(self.recalc_radius / (self.grid[0][0][0] - self.grid[0][0][1]))))
 
         self.recalc_raster = np.zeros(self.grid.shape[1:])

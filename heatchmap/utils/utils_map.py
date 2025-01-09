@@ -1,16 +1,15 @@
+import time
+
 import geopandas as gpd
 import numpy as np
 import rasterio
 import rasterio.mask
 import rasterio.plot
 from IPython.display import Image, display
-from matplotlib import pyplot as plt
+from models import *
 from shapely.geometry import Polygon
 from tqdm import tqdm
 from tqdm.auto import tqdm
-import time
-
-from models import *
 
 tqdm.pandas()
 

@@ -1,17 +1,12 @@
 import numpy as np
-import pandas as pd
+from numeric_transformers import MyLogTransformer
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.metrics import (mean_absolute_error, mean_squared_error,
-                             root_mean_squared_error)
+from sklearn.metrics import mean_absolute_error, root_mean_squared_error
 from sklearn.model_selection import cross_validate
 from sklearn.utils._testing import ignore_warnings
-from tqdm import tqdm
-
-from numeric_transformers import LogTransformer, MyLogTransformer
-from transformed_target_regressor_with_uncertainty import \
-    TransformedTargetRegressorWithUncertainty
+from transformed_target_regressor_with_uncertainty import TransformedTargetRegressorWithUncertainty
 from utils_map import *
 
 
@@ -66,7 +61,7 @@ def evaluate_cv(estimator, X, y, folds=5):
         return_estimator=True,
     )
 
-    print(f"Cross-validated averaged metrics...")
+    print("Cross-validated averaged metrics...")
     print(
         f"Training RMSE: {cv_result['train_neg_root_mean_squared_error'].mean() * -1}"
     )
