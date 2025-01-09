@@ -3,6 +3,9 @@ import glob
 import os
 import pickle
 import time
+import requests
+import zipfile
+import io
 
 import geopandas as gpd
 import numpy as np
@@ -55,6 +58,34 @@ class GPMap(MapBasedModel):
         self.map_path = f"intermediate/map_{self.method}_{self.region}_{self.resolution}_{self.version}_{self.today.date()}.txt"
 
         self.recalc_radius = 800000 # TODO: determine from model largest influence radius
+        
+        here = {os.path.dirname(os.path.abspath(__file__))}
+        self.shapely_countries = f"{here}/cache/countries/ne_110m_admin_0_countries.shp"
+
+        if not os.path.exists(file_path):
+            output_dir = f"{here}/cache/countries"
+            os.makedirs(output_dir, exist_ok=True)
+
+            # URL for the 110m countries shapefile from Natural Earth
+            url = "https://naturalearth.s3.amazonaws.com/110m_cultural/ne_110m_admin_0_countries.zip"
+
+            # Directory to save the dataset
+            
+
+            # Download the dataset
+            print("Downloading countries dataset...")
+            response = requests.get(url)
+            response.raise_for_status()  # Raise an error for bad responses
+
+            # Extract the zip file
+            print("Extracting files...")
+            with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+                z.extractall(output_dir)
+
+            print(f"Countries dataset downloaded and extracted to: {output_dir}")
+        
+        else:
+            print(f"Countries dataset already exists at: {file_path}")
 
     def recalc_map(self):
         """Recalculate the map with the current Gaussian Process model.
@@ -234,9 +265,7 @@ class GPMap(MapBasedModel):
 
         nodata = 0
 
-        countries = gpd.read_file(
-            "countries/ne_110m_admin_0_countries.shp"
-        )
+        countries = gpd.read_file(self.shapely_countries)
         countries = countries.to_crs(epsg=3857)
         countries = countries[countries.NAME != "Antarctica"]
         country_shapes = countries.geometry
