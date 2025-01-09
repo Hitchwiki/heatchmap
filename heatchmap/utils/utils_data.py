@@ -3,6 +3,7 @@ import sqlite3
 import geopandas as gpd
 import pandas as pd
 import shapely
+from rasterio.crs import CRS
 
 from .utils_map import *
 

@@ -467,3 +467,4 @@ junit/
 cache/
 dump.sqlite
 *.html
+.ipynb

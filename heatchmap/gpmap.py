@@ -14,11 +14,13 @@ from rasterio.control import GroundControlPoint as GCP
 from rasterio.crs import CRS
 from rasterio.transform import from_gcps
 from shapely.validation import make_valid
-from tqdm.auto import tqdm
+from tqdm import tqdm
 
 from .map_based_model import MapBasedModel
 from .utils.utils_data import get_points
 from .utils.utils_models import fit_gpr_silent
+from .utils.transformed_target_regressor_with_uncertainty import TransformedTargetRegressorWithUncertainty
+from .utils import transformed_target_regressor_with_uncertainty
 
 
 class GPMap(MapBasedModel):
