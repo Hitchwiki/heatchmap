@@ -2,11 +2,12 @@ from pathlib import Path
 
 import setuptools
 
-VERSION = "0.1.10"
+VERSION = "0.1.11"
 
 NAME = "heatchmap"
 
 INSTALL_REQUIRES = [
+    "datasets==3.2.0",
     "huggingface-hub==0.27.1",
     "geopandas==1.0.1",
     "matplotlib==3.10.0",

@@ -40,6 +40,7 @@ BUCKETS = [
 # values higher than the upper boundary are colored in the upmost color
 BOUNDARIES = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 class MapBasedModel(BaseEstimator, RegressorMixin):
     def __init__(
@@ -55,13 +56,15 @@ class MapBasedModel(BaseEstimator, RegressorMixin):
         self.resolution = resolution  # pixel per degree
         self.version = version
         self.verbose = verbose
+        
+        landmass_dir = f"{HERE}/cache/landmass"
 
-        os.makedirs("temp", exist_ok=True)
+        os.makedirs(landmass_dir, exist_ok=True)
 
         self.map_boundary = self.get_map_boundary()
-        self.rasterio_path = f"intermediate/map_{self.method}_{self.region}_{self.resolution}_{self.version}.tif"
-        self.map_path = f"intermediate/map_{method}_{region}_{resolution}_{version}.txt"
-        self.landmass_path = "temp/landmass.tif"
+        self.rasterio_path = f"{HERE}/cache/intermediate/map_{self.method}_{self.region}_{self.resolution}_{self.version}.tif"
+        self.map_path = f"{HERE}/cache/intermediate/map_{method}_{region}_{resolution}_{version}.txt"
+        self.landmass_path = f"{landmass_dir}/landmass.tif"
     
 
     def get_map_boundary(self):

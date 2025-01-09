@@ -18,6 +18,7 @@ from rasterio.crs import CRS
 from rasterio.transform import from_gcps
 from shapely.validation import make_valid
 from tqdm import tqdm
+from datasets import load_dataset
 
 from .map_based_model import MapBasedModel
 from .utils.utils_data import get_points
@@ -48,22 +49,18 @@ class GPMap(MapBasedModel):
 
         super().__init__(method=type(self.gpr).__name__, region=region, resolution=resolution, version=version, verbose=False)
         
-        files = glob.glob(f"intermediate/map_{self.method}_{self.region}_{self.resolution}_{self.version}*.txt")
-        if len(files) == 0:
-            raise FileNotFoundError("No base map calculated so far.")
-        else:
-            latest_date = pd.Timestamp.min
-            for file in files:
-                date = pd.Timestamp(file.split("_")[-1].split(".")[0])
-                if date > latest_date:
-                    latest_date = date
-                    self.old_map_path = file
+        ds = load_dataset("tillwenke/heatchmap-map", cache_dir=f"{HERE}/cache/huggingface")
+        ds = ds.with_format("np")
+        self.raw_raster = ds["train"]["numpy"]
+        
+        # files = glob.glob(f"intermediate/map_{self.method}_{self.region}_{self.resolution}_{self.version}*.txt")
 
-        self.begin = latest_date
+        self.begin = pd.Timestamp("2024-12-21") # TODO: read latest date from somewhere
 
         self.batch_size = 10000
         self.today = pd.Timestamp.now()
-        self.map_path = f"intermediate/map_{self.method}_{self.region}_{self.resolution}_{self.version}_{self.today.date()}.txt"
+        # self.map_path = f"intermediate/map_{self.method}_{self.region}_{self.resolution}_{self.version}_{self.today.date()}.txt"
+        
 
         self.recalc_radius = 800000 # TODO: determine from model largest influence radius
         
@@ -114,7 +111,7 @@ class GPMap(MapBasedModel):
 
         # recalc the old map
 
-        self.raw_raster = np.loadtxt(self.old_map_path)
+        # self.raw_raster = np.loadtxt(self.old_map_path)
 
         self.get_map_grid()
         self.get_recalc_raster()
@@ -153,8 +150,8 @@ class GPMap(MapBasedModel):
         print(f"Only {self.recalc_raster.sum()} pixels were recalculated. That is {self.recalc_raster.sum() / (self.raw_raster.shape[0] * self.raw_raster.shape[1]) * 100}% of the map.")
         print(f"And time per recalculated pixel was {(time.time() - start) / self.recalc_raster.sum()} seconds")
 
-        np.savetxt(self.map_path, self.raw_raster)
-        self.save_as_rasterio()
+        # np.savetxt(self.map_path, self.raw_raster)
+        # self.save_as_rasterio()
 
     def show_raster(self, raster: np.array):
         """Show the raster in a plot.
