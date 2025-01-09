@@ -62,7 +62,7 @@ class GPMap(MapBasedModel):
         here = {os.path.dirname(os.path.abspath(__file__))}
         self.shapely_countries = f"{here}/cache/countries/ne_110m_admin_0_countries.shp"
 
-        if not os.path.exists(file_path):
+        if not os.path.exists(self.shapely_countries):
             output_dir = f"{here}/cache/countries"
             os.makedirs(output_dir, exist_ok=True)
 
