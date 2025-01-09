@@ -1,4 +1,4 @@
-# A package for estimation and visualization of hitchhiking quality.
+# Heatchmap - A package for estimation and visualization of hitchhiking quality.
 
 [![PyPI version](https://badge.fury.io/py/heatchmap.svg)](https://badge.fury.io/py/heatchmap)
 
