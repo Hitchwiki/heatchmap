@@ -54,12 +54,12 @@ class GPMap(MapBasedModel):
         self.begin = latest_date
 
         self.batch_size = 10000
-        self.today = pd.Timestamp("2024-3-30")
+        self.today = pd.Timestamp.now()
         self.map_path = f"intermediate/map_{self.method}_{self.region}_{self.resolution}_{self.version}_{self.today.date()}.txt"
 
         self.recalc_radius = 800000 # TODO: determine from model largest influence radius
         
-        here = {os.path.dirname(os.path.abspath(__file__))}
+        here = os.path.dirname(os.path.abspath(__file__))
         self.shapely_countries = f"{here}/cache/countries/ne_110m_admin_0_countries.shp"
 
         if not os.path.exists(self.shapely_countries):
