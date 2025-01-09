@@ -2,7 +2,7 @@ from pathlib import Path
 
 import setuptools
 
-VERSION = "0.1.9"
+VERSION = "0.1.10"
 
 NAME = "heatchmap"
 

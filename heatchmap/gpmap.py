@@ -24,9 +24,17 @@ from .utils.utils_data import get_points
 from .utils.utils_models import fit_gpr_silent
 
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+
 class GPMap(MapBasedModel):
     def __init__(self, region="world", resolution=10, version="prod"):
-        self.points_path = "dump.sqlite"
+        self.points_path = f"{HERE}/cache/hitchmap/dump.sqlite"
+        hitchmap_url = 'https://hitchmap.com/dump.sqlite'
+        response = requests.get(hitchmap_url)
+        response.raise_for_status()  # Check for HTTP request errors
+        with open(self.points_path, "wb") as file:
+            file.write(response.content)
 
         if os.path.exists("models/kernel.pkl"):
             self.gpr_path = "models/kernel.pkl"
@@ -59,11 +67,11 @@ class GPMap(MapBasedModel):
 
         self.recalc_radius = 800000 # TODO: determine from model largest influence radius
         
-        here = os.path.dirname(os.path.abspath(__file__))
-        self.shapely_countries = f"{here}/cache/countries/ne_110m_admin_0_countries.shp"
+        
+        self.shapely_countries = f"{HERE}/cache/countries/ne_110m_admin_0_countries.shp"
 
         if not os.path.exists(self.shapely_countries):
-            output_dir = f"{here}/cache/countries"
+            output_dir = f"{HERE}/cache/countries"
             os.makedirs(output_dir, exist_ok=True)
 
             # URL for the 110m countries shapefile from Natural Earth
