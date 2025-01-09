@@ -3,7 +3,8 @@ import sqlite3
 import geopandas as gpd
 import pandas as pd
 import shapely
-from utils_map import *
+
+from .utils_map import *
 
 DAY = 24 * 60
 WAIT_MAX = DAY

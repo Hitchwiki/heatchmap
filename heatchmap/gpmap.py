@@ -8,18 +8,17 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import rasterio
-import rasterio.mask
-import rasterio.plot
 from huggingface_hub import hf_hub_download
-from map_based_model import MapBasedModel
 from matplotlib import pyplot as plt
 from rasterio.control import GroundControlPoint as GCP
 from rasterio.crs import CRS
 from rasterio.transform import from_gcps
 from shapely.validation import make_valid
 from tqdm.auto import tqdm
-from utils.utils_data import get_points
-from utils.utils_models import fit_gpr_silent
+
+from .map_based_model import MapBasedModel
+from .utils.utils_data import get_points
+from .utils.utils_models import fit_gpr_silent
 
 
 class GPMap(MapBasedModel):
@@ -123,6 +122,7 @@ class GPMap(MapBasedModel):
         
         Args:
             raster (np.array): 2D np.array of the raster to be shown.
+
         """
         plt.imshow(raster, cmap="viridis", interpolation="nearest")
         plt.colorbar()

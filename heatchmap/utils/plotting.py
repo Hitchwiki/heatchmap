@@ -3,10 +3,11 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
-from numeric_transformers import exp_minus_tiny, log_plus_tiny
-from utils_data import get_points
-from utils_map import *
-from utils_models import TargetTransformer
+
+from .numeric_transformers import exp_minus_tiny, log_plus_tiny
+from .utils_data import get_points
+from .utils_map import *
+from .utils_models import TargetTransformer
 
 
 def plot_distribution_of_data_points():

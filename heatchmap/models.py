@@ -1,9 +1,10 @@
 import numpy as np
 import pandas as pd
-from map_based_model import MapBasedModel
 from shapely.geometry import Point
 from sklearn.base import BaseEstimator, RegressorMixin
 from tqdm.auto import tqdm
+
+from .map_based_model import MapBasedModel
 
 tqdm.pandas()
 

@@ -1,13 +1,14 @@
 import numpy as np
-from numeric_transformers import MyLogTransformer
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.metrics import mean_absolute_error, root_mean_squared_error
 from sklearn.model_selection import cross_validate
 from sklearn.utils._testing import ignore_warnings
-from transformed_target_regressor_with_uncertainty import TransformedTargetRegressorWithUncertainty
-from utils_map import *
+
+from .numeric_transformers import MyLogTransformer
+from .transformed_target_regressor_with_uncertainty import TransformedTargetRegressorWithUncertainty
+from .utils_map import *
 
 
 # centers data to a zero mean

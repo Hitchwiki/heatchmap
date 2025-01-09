@@ -3,13 +3,16 @@ dependencies:
   - pip
   - python=3.10
   - pip:
-    - geopandas
-    - huggingface_hub
-    - numpy
-    - pandas
-    - ruff
-    - scikit-learn
-    - scipy
-    - shapely
-    - tqdm
+    - huggingface-hub==0.27.1
+    - geopandas==1.0.1
+    - matplotlib==3.10.0
+    - numpy==2.2.1
+    - osmnx==1.7.0
+    - pandas==2.2.3
+    - rasterio==1.4.3
+    - scikit-learn==1.6.0
+    - scipy==1.15.0
+    - shapely==2.0.6
+    - tqdm==4.67.1
+
 

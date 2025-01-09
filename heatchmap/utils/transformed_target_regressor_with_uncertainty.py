@@ -1,9 +1,10 @@
 # from https://github.com/scikit-learn/scikit-learn/issues/24638
 
 
-from numeric_transformers import Transformer
 from sklearn.base import BaseEstimator
 from sklearn.compose import TransformedTargetRegressor
+
+from .numeric_transformers import Transformer
 
 
 class TransformedTargetRegressorWithUncertainty(TransformedTargetRegressor):

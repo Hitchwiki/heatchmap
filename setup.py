@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import setuptools
 
 VERSION = "0.1.1"
@@ -6,11 +7,13 @@ VERSION = "0.1.1"
 NAME = "heatchmap"
 
 INSTALL_REQUIRES = [
+    "huggingface-hub==0.27.1"
     "geopandas==1.0.1",
     "matplotlib==3.10.0",
     "numpy==2.2.1",
     "osmnx==1.7.0",
     "pandas==2.2.3",
+    "rasterio==1.4.3",
     "scikit-learn==1.6.0",
     "scipy==1.15.0",
     "shapely==2.0.6",

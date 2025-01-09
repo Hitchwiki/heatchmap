@@ -257,6 +257,7 @@ class MapBasedModel(BaseEstimator, RegressorMixin):
                 Whether to show the final map
             figsize: int, default=10
                 Size of the figure
+
         """
         # setup
         if not hasattr(self, "raw_uncertainties"):
