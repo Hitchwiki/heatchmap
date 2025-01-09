@@ -85,7 +85,7 @@ class GPMap(MapBasedModel):
             print(f"Countries dataset downloaded and extracted to: {output_dir}")
         
         else:
-            print(f"Countries dataset already exists at: {file_path}")
+            print(f"Countries dataset already exists at: {self.shapely_countries}")
 
     def recalc_map(self):
         """Recalculate the map with the current Gaussian Process model.
