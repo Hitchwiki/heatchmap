@@ -88,7 +88,7 @@ class WeightedAveragedGaussian(MapBasedModel):
             else:
                 Z = np.loadtxt(f"intermediate/map_{region}.txt", dtype=float)
 
-        except:
+        except Exception as _:
             # create a raster map - resulution is defined above
             # https://stackoverflow.com/questions/56677267/tqdm-extract-time-passed-time-remaining
             if self.verbose:
@@ -122,7 +122,7 @@ class WeightedAveragedGaussian(MapBasedModel):
                     full_df = pd.read_csv(tracker_name, index_col=0)
                     full_df = pd.concat([full_df, df])
                     full_df.to_csv(tracker_name, sep=",")
-                except:
+                except Exception as _:
                     df.to_csv(tracker_name)
 
             # normalize the weighted sum by the sum of all distributions -> so we see the actual waiting times in the raster

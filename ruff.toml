@@ -1,5 +1,5 @@
 
-line-length = 120
+line-length = 130
 
 [lint]
 select = [
@@ -14,7 +14,6 @@ select = [
     # flake8-simplify
     "SIM",
     # isort
-    "I",
-    # pycodestyle
-    "D"
+    "I"
 ]
+

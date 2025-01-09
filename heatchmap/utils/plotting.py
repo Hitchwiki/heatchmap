@@ -13,7 +13,7 @@ from .utils_models import TargetTransformer
 def plot_distribution_of_data_points():
     points = get_points("../data/points_train.csv")
 
-    countries = gpd.read_file("map_features/countries/ne_110m_admin_0_countries.shp")
+    countries = gpd.read_file("countries/ne_110m_admin_0_countries.shp")
     countries = countries.to_crs(epsg=3857)
     countries = countries[countries.NAME != "Antarctica"]
     germany = countries[countries.NAME == "Germany"]

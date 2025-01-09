@@ -6,10 +6,11 @@ import rasterio
 import rasterio.mask
 import rasterio.plot
 from IPython.display import Image, display
-from ..map_based_model import MapBasedModel
 from shapely.geometry import Polygon
 from tqdm import tqdm
 from tqdm.auto import tqdm
+
+from ..map_based_model import MapBasedModel
 
 tqdm.pandas()
 

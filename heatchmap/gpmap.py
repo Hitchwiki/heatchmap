@@ -19,8 +19,6 @@ from tqdm import tqdm
 from .map_based_model import MapBasedModel
 from .utils.utils_data import get_points
 from .utils.utils_models import fit_gpr_silent
-from .utils.transformed_target_regressor_with_uncertainty import TransformedTargetRegressorWithUncertainty
-from .utils import transformed_target_regressor_with_uncertainty
 
 
 class GPMap(MapBasedModel):
@@ -237,7 +235,7 @@ class GPMap(MapBasedModel):
         nodata = 0
 
         countries = gpd.read_file(
-            "map_features/countries/ne_110m_admin_0_countries.shp"
+            "countries/ne_110m_admin_0_countries.shp"
         )
         countries = countries.to_crs(epsg=3857)
         countries = countries[countries.NAME != "Antarctica"]

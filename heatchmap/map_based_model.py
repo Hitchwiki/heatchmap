@@ -17,9 +17,6 @@ from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
 from shapely.validation import make_valid
 from sklearn.base import BaseEstimator, RegressorMixin
-from tqdm.auto import tqdm
-
-tqdm.pandas()
 
 RESOLUTION = 2
 
@@ -275,7 +272,7 @@ class MapBasedModel(BaseEstimator, RegressorMixin):
         if self.verbose:
             print("Loading country shapes...")
         countries = gpd.read_file(
-            "map_features/countries/ne_110m_admin_0_countries.shp"
+            "countries/ne_110m_admin_0_countries.shp"
         )
         countries = countries.to_crs(epsg=3857)
         countries = countries[countries.NAME != "Antarctica"]
