@@ -29,7 +29,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 class GPMap(MapBasedModel):
-    def __init__(self, region="world", resolution=10, version="prod"):
+    def __init__(self, region="world", resolution=10, version="prod", visual:bool=False):
+        self.visual = visual
+        
         os.makedirs(f"{HERE}/cache/hitchmap", exist_ok=True)
         self.points_path = f"{HERE}/cache/hitchmap/dump.sqlite"
         hitchmap_url = 'https://hitchmap.com/dump.sqlite'
@@ -206,13 +208,14 @@ class GPMap(MapBasedModel):
                     if i < 0 or j < 0 or i >= self.recalc_raster.shape[0] or j >= self.recalc_raster.shape[1]:
                         continue
                     self.recalc_raster[i, j] = 1
-        self.show_raster(self.recalc_raster)
+        
+        self.show_raster(self.recalc_raster) if self.visual else None
         
         print("Report reduction of rasters.")
         print(self.recalc_raster.sum(), self.recalc_raster.shape[0] * self.recalc_raster.shape[1], self.recalc_raster.sum() / (self.recalc_raster.shape[0] * self.recalc_raster.shape[1]))
         self.get_landmass_raster()
         self.recalc_raster = self.recalc_raster * self.landmass_raster
-        self.show_raster(self.recalc_raster)
+        self.show_raster(self.recalc_raster) if self.visual else None
         print(self.landmass_raster.sum(), self.landmass_raster.shape[0] * self.landmass_raster.shape[1], self.landmass_raster.sum() / (self.landmass_raster.shape[0] * self.landmass_raster.shape[1]))
         print(self.recalc_raster.sum(), self.recalc_raster.shape[0] * self.recalc_raster.shape[1], self.recalc_raster.sum() / (self.recalc_raster.shape[0] * self.recalc_raster.shape[1]))
 
@@ -283,7 +286,7 @@ class GPMap(MapBasedModel):
         )
 
         self.landmass_raster = out_image[0]
-        self.show_raster(self.landmass_raster)
+        self.show_raster(self.landmass_raster) if self.visual else None
 
         # cleanup
         os.remove(self.landmass_path)
