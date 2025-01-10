@@ -2,7 +2,7 @@ from pathlib import Path
 
 import setuptools
 
-VERSION = "0.1.13"
+VERSION = "0.1.14"
 
 NAME = "heatchmap"
 
@@ -46,28 +46,3 @@ setuptools.setup(
     long_description=Path("README.md").read_text(),
     long_description_content_type="text/markdown",
 )
-
-
-
-image = norm(Z).data
-
-
-import numpy as np
-import matplotlib.pyplot as plt
-
-# Input 2D scalar array
-scalars = image
-
-# Apply the colormap to scalars
-colors = cmap(scalars)
-
-# Combine RGB values with the opacity
-rgba_array = np.empty_like(colors)
-rgba_array[:, :, :3] = colors[:, :, :3]  # RGB
-rgba_array[:, :, 3] = 1.0  # A
-
-# Verify shape and content
-print(rgba_array.shape)
-
-
-nodata = np.nan
