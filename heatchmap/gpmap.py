@@ -30,12 +30,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 class GPMap(MapBasedModel):
     def __init__(self, region="world", resolution=10, version="prod"):
+        os.makedirs(f"{HERE}/cache/hitchmap", exist_ok=True)
         self.points_path = f"{HERE}/cache/hitchmap/dump.sqlite"
         hitchmap_url = 'https://hitchmap.com/dump.sqlite'
         response = requests.get(hitchmap_url)
         response.raise_for_status()  # Check for HTTP request errors
         with open(self.points_path, "wb") as file:
             file.write(response.content)
+            print(f"Downloaded Hitchmap data to: {self.points_path}")
 
         if os.path.exists("models/kernel.pkl"):
             self.gpr_path = "models/kernel.pkl"
