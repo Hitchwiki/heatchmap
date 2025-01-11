@@ -18,8 +18,7 @@ from rasterio.crs import CRS
 from rasterio.transform import from_gcps
 from shapely.validation import make_valid
 from tqdm import tqdm
-from datasets import load_dataset
-
+from datasets import load_dataset, Dataset
 from .map_based_model import MapBasedModel
 from .utils.utils_data import get_points
 from .utils.utils_models import fit_gpr_silent
@@ -78,8 +77,7 @@ class GPMap(MapBasedModel):
             # URL for the 110m countries shapefile from Natural Earth
             url = "https://naturalearth.s3.amazonaws.com/110m_cultural/ne_110m_admin_0_countries.zip"
 
-            # Directory to save the dataset
-            
+    
 
             # Download the dataset
             print("Downloading countries dataset...")
@@ -290,8 +288,14 @@ class GPMap(MapBasedModel):
 
         # cleanup
         os.remove(self.landmass_path)
-
-
-def recalc():
-    gpmap = GPMap(resolution=1)
-    gpmap.recalc_map()
+        
+    def upload(self):
+        """Uploads the recalculated map to the Hugging Face model hub."""
+        print(self.raw_raster.shape)
+        d = {"numpy": self.raw_raster}
+        ds = Dataset.from_dict(d)
+        print(len(ds["numpy"]), len(ds["numpy"][0]))
+        ds = ds.with_format("np")
+        print(ds["numpy"].shape)
+        ds.info.version = str(self.today)
+        ds.push_to_hub("tillwenke/heatchmap-map")
