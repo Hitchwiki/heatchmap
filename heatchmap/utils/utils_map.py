@@ -5,7 +5,6 @@ import numpy as np
 import rasterio
 import rasterio.mask
 import rasterio.plot
-from IPython.display import Image, display
 from shapely.geometry import Polygon
 from tqdm import tqdm
 from tqdm.auto import tqdm
@@ -184,10 +183,6 @@ def map_from_model(
 
     if return_raster:
         return raster_maker
-
-
-def show_map(path="maps/map.png"):
-    display(Image(filename=path))
 
 
 # draw a map from pre-computed raster
