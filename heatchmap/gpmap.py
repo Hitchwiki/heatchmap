@@ -19,7 +19,7 @@ from rasterio.crs import CRS
 from rasterio.transform import from_gcps
 from shapely.validation import make_valid
 from tqdm import tqdm
-from datasets import load_dataset, Dataset
+from datasets import load_dataset, Dataset, DatasetDict
 from .map_based_model import MapBasedModel
 from .utils.utils_data import get_points
 from .utils.utils_models import fit_gpr_silent
