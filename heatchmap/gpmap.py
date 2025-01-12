@@ -6,6 +6,7 @@ import time
 import requests
 import zipfile
 import io
+import shutil
 
 import geopandas as gpd
 import numpy as np
@@ -31,7 +32,9 @@ class GPMap(MapBasedModel):
     def __init__(self, region="world", resolution=10, version="prod", visual:bool=False):
         self.visual = visual
         
-        os.makedirs(f"{HERE}/cache/hitchmap", exist_ok=True)
+        self.cache_dir = f"{HERE}/cache"
+        
+        os.makedirs(f"{self.cache_dir}/hitchmap", exist_ok=True)
         self.points_path = f"{HERE}/cache/hitchmap/dump.sqlite"
         hitchmap_url = 'https://hitchmap.com/dump.sqlite'
         response = requests.get(hitchmap_url)
@@ -76,10 +79,10 @@ class GPMap(MapBasedModel):
         self.recalc_radius = 800000 # TODO: determine from model largest influence radius
         
         
-        self.shapely_countries = f"{HERE}/cache/countries/ne_110m_admin_0_countries.shp"
+        self.shapely_countries = f"{self.cache_dir}/countries/ne_110m_admin_0_countries.shp"
 
         if not os.path.exists(self.shapely_countries):
-            output_dir = f"{HERE}/cache/countries"
+            output_dir = f"{self.cache_dir}/countries"
             os.makedirs(output_dir, exist_ok=True)
 
             # URL for the 110m countries shapefile from Natural Earth
@@ -302,7 +305,10 @@ class GPMap(MapBasedModel):
         os.remove(self.landmass_path)
         
     def upload(self):
-        """Uploads the recalculated map to the Hugging Face model hub."""
+        """Uploads the recalculated map to the Hugging Face model hub.
+        
+        Clean cached files.
+        """
         print(self.raw_raster.shape)
         d = {"numpy": self.raw_raster}
         ds = Dataset.from_dict(d)
@@ -312,3 +318,5 @@ class GPMap(MapBasedModel):
         ds.info.version = str(self.today)
         ds.push_to_hub("tillwenke/heatchmap-map")
         print("Uploaded new map to Hugging Face dataset hub.")
+        
+        shutil.rmtree(self.cache_dir)
