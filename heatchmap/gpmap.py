@@ -52,13 +52,19 @@ class GPMap(MapBasedModel):
 
         super().__init__(method=type(self.gpr).__name__, region=region, resolution=resolution, version=version, verbose=False)
         
-        ds = load_dataset("tillwenke/heatchmap-map", cache_dir=f"{HERE}/cache/huggingface")
-        ds = ds.with_format("np")
-        self.raw_raster = ds["train"]["numpy"]
+        self.map_dataset = load_dataset("tillwenke/heatchmap-map", cache_dir=f"{HERE}/cache/huggingface")
+        self.map_dataset = self.map_dataset.with_format("np")
+        self.raw_raster = self.map_dataset["train"]["numpy"]
         
         # files = glob.glob(f"intermediate/map_{self.method}_{self.region}_{self.resolution}_{self.version}*.txt")
 
-        self.begin = pd.Timestamp("2024-12-21") # TODO: read latest date from somewhere
+        last_map_update = self.map_dataset["train"].info.version
+        if last_map_update == "0.0.0":
+            self.begin = pd.Timestamp(self.today.date() - pd.Timedelta(days=1))
+            print("No map update found. Using yesterday as begin date.")
+        else:
+            self.begin = pd.Timestamp(last_map_update)
+            print(f"Last map update was on {self.begin.date()}.")
 
         self.batch_size = 10000
         self.today = pd.Timestamp.now()
@@ -299,3 +305,4 @@ class GPMap(MapBasedModel):
         print(ds["numpy"].shape)
         ds.info.version = str(self.today)
         ds.push_to_hub("tillwenke/heatchmap-map")
+        print("Uploaded new map to Hugging Face dataset hub.")
