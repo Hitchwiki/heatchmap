@@ -16,6 +16,7 @@ tqdm.pandas()
 
 RESOLUTION = 2
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def save_numpy_map(

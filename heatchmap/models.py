@@ -14,6 +14,7 @@ RESOLUTION = 2
 # 180 degree meridian in epsg 3857
 MERIDIAN = 20037508
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class Average(BaseEstimator, RegressorMixin):

@@ -3,11 +3,15 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
+import logging
 
 from .numeric_transformers import exp_minus_tiny, log_plus_tiny
 from .utils_data import get_points
 from .utils_map import *
 from .utils_models import TargetTransformer
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def plot_distribution_of_data_points():
@@ -46,11 +50,11 @@ def plot_distribution_of_data_points():
 
     plt.show()
 
-    print(f"Germany: {round(len(germany_data) / len(points) * 100, 2)} %")
-    print(
+    logger.info(f"Germany: {round(len(germany_data) / len(points) * 100, 2)} %")
+    logger.info(
         f"Europe without Germany: {round(len(europe_without_germany_data) / len(points) * 100, 2)} %"
     )
-    print(f"Rest of the world: {round(len(world_data) / len(points) * 100, 2)} %")
+    logger.info(f"Rest of the world: {round(len(world_data) / len(points) * 100, 2)} %")
 
 
 def plot_1d_model_comparison(

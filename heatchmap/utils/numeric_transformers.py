@@ -1,12 +1,15 @@
 # from https://github.com/scikit-learn/scikit-learn/issues/24638
 
 from enum import Enum
+import logging
 
 import numpy as np
 import pandas as pd
 from scipy.stats import skew
 from sklearn.base import BaseEstimator, TransformerMixin
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # see https://en.wikipedia.org/wiki/Log-normal_distribution#Arithmetic_moments
 # needed for Target transformer when we have std
@@ -197,7 +200,7 @@ def get_transformer_with_least_skew(
 
         transformed_y = transformer.func(y_array)
         transformed_skew = abs(skew(transformed_y))
-        print(f"Skew for {t}: {transformed_skew}")
+        logger.info(f"Skew for {t}: {transformed_skew}")
 
         if transformed_skew < min_skew:
             min_skew = transformed_skew
