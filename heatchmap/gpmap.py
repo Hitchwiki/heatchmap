@@ -55,29 +55,28 @@ class GPMap(MapBasedModel):
 
         super().__init__(method=type(self.gpr).__name__, region=region, resolution=resolution, version=version, verbose=False)
         
-        self.map_dataset = load_dataset("tillwenke/heatchmap-map", cache_dir=f"{HERE}/cache/huggingface")
+        map_dataset_dict = load_dataset("tillwenke/heatchmap-map", cache_dir=f"{HERE}/cache/huggingface")
+        split = list(map_dataset_dict.keys())[-1]
+        self.map_dataset = map_dataset_dict[split]
         self.map_dataset = self.map_dataset.with_format("np")
-        self.raw_raster = self.map_dataset["train"]["numpy"]
+        self.raw_raster = self.map_dataset["numpy"]
         
         # files = glob.glob(f"intermediate/map_{self.method}_{self.region}_{self.resolution}_{self.version}*.txt")
 
         self.today = pd.Timestamp.now()
-        
-        last_map_update = self.map_dataset["train"].info.version
-        if last_map_update == "0.0.0":
-            self.begin = pd.Timestamp(self.today.date() - pd.Timedelta(days=1))
-            print("No map update found. Using yesterday as begin date.")
-        else:
-            self.begin = pd.Timestamp(last_map_update)
+            
+        try:
+            self.begin = pd.Timestamp.strptime(split, "%Y.%m.%d")
             print(f"Last map update was on {self.begin.date()}.")
+        except Exception as e: 
+            self.begin = pd.Timestamp(self.today.date() - pd.Timedelta(days=1))
+            print(f"No map update found with {e}. Using yesterday as begin date.")
 
         self.batch_size = 10000
         
         # self.map_path = f"intermediate/map_{self.method}_{self.region}_{self.resolution}_{self.version}_{self.today.date()}.txt"
         
-
         self.recalc_radius = 800000 # TODO: determine from model largest influence radius
-        
         
         self.shapely_countries = f"{self.cache_dir}/countries/ne_110m_admin_0_countries.shp"
 
@@ -315,8 +314,9 @@ class GPMap(MapBasedModel):
         print(len(ds["numpy"]), len(ds["numpy"][0]))
         ds = ds.with_format("np")
         print(ds["numpy"].shape)
-        ds.info.version = str(self.today)
-        ds.push_to_hub("tillwenke/heatchmap-map")
+        ds_dict = DatasetDict({self.today.strftime("%Y.%m.%d"): ds})
+
+        ds_dict.push_to_hub("tillwenke/heatchmap-map")
         print("Uploaded new map to Hugging Face dataset hub.")
         
         shutil.rmtree(self.cache_dir)
