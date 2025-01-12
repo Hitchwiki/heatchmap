@@ -58,6 +58,8 @@ class GPMap(MapBasedModel):
         
         # files = glob.glob(f"intermediate/map_{self.method}_{self.region}_{self.resolution}_{self.version}*.txt")
 
+        self.today = pd.Timestamp.now()
+        
         last_map_update = self.map_dataset["train"].info.version
         if last_map_update == "0.0.0":
             self.begin = pd.Timestamp(self.today.date() - pd.Timedelta(days=1))
@@ -67,7 +69,7 @@ class GPMap(MapBasedModel):
             print(f"Last map update was on {self.begin.date()}.")
 
         self.batch_size = 10000
-        self.today = pd.Timestamp.now()
+        
         # self.map_path = f"intermediate/map_{self.method}_{self.region}_{self.resolution}_{self.version}_{self.today.date()}.txt"
         
 
@@ -197,27 +199,31 @@ class GPMap(MapBasedModel):
     def get_recalc_raster(self):
         """Creats 2d np.array of raster where only pixels that are 1 should be recalculated."""
         recalc_radius_pixels = int(np.ceil(abs(self.recalc_radius / (self.grid[0][0][0] - self.grid[0][0][1]))))
-
-        self.recalc_raster = np.zeros(self.grid.shape[1:])
-
-        new_points = get_points(self.points_path, begin=self.begin, until=self.today)
-        new_points["lon"] = new_points.geometry.x
-        new_points["lat"] = new_points.geometry.y
-        print(f"Recalculating map for {len(new_points)} new points.")
-        for i, point in new_points.iterrows():
-            lat_pixel, lon_pixel = self.pixel_from_point(point)
-
-            for i in range(lat_pixel - recalc_radius_pixels, lat_pixel + recalc_radius_pixels):
-                for j in range(lon_pixel - recalc_radius_pixels, lon_pixel + recalc_radius_pixels):
-                    if i < 0 or j < 0 or i >= self.recalc_raster.shape[0] or j >= self.recalc_raster.shape[1]:
-                        continue
-                    self.recalc_raster[i, j] = 1
+        self.get_landmass_raster()
         
+        if self.raw_raster is None:
+            print("No map found. Recalculating whole map.")
+            self.recalc_raster = np.ones(self.grid.shape[1:])
+        else:
+            self.recalc_raster = np.zeros(self.grid.shape[1:])
+
+            new_points = get_points(self.points_path, begin=self.begin, until=self.today)
+            new_points["lon"] = new_points.geometry.x
+            new_points["lat"] = new_points.geometry.y
+            print(f"Recalculating map for {len(new_points)} new points.")
+            for i, point in new_points.iterrows():
+                lat_pixel, lon_pixel = self.pixel_from_point(point)
+
+                for i in range(lat_pixel - recalc_radius_pixels, lat_pixel + recalc_radius_pixels):
+                    for j in range(lon_pixel - recalc_radius_pixels, lon_pixel + recalc_radius_pixels):
+                        if i < 0 or j < 0 or i >= self.recalc_raster.shape[0] or j >= self.recalc_raster.shape[1]:
+                            continue
+                        self.recalc_raster[i, j] = 1
+            
         self.show_raster(self.recalc_raster) if self.visual else None
-        
+            
         print("Report reduction of rasters.")
         print(self.recalc_raster.sum(), self.recalc_raster.shape[0] * self.recalc_raster.shape[1], self.recalc_raster.sum() / (self.recalc_raster.shape[0] * self.recalc_raster.shape[1]))
-        self.get_landmass_raster()
         self.recalc_raster = self.recalc_raster * self.landmass_raster
         self.show_raster(self.recalc_raster) if self.visual else None
         print(self.landmass_raster.sum(), self.landmass_raster.shape[0] * self.landmass_raster.shape[1], self.landmass_raster.sum() / (self.landmass_raster.shape[0] * self.landmass_raster.shape[1]))
