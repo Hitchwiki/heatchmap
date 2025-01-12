@@ -85,7 +85,7 @@ class GPMap(MapBasedModel):
         
         self.today = pd.Timestamp.now()
         try:
-            self.begin = pd.Timestamp.strptime(split, "%Y.%m.%d")
+            self.begin = pd.to_datetime(split, format="%Y.%m.%d")
             logger.info(f"Last map update was on {self.begin.date()}.")
         except Exception as e: 
             self.begin = pd.Timestamp(self.today.date() - pd.Timedelta(days=1))
