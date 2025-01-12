@@ -309,11 +309,14 @@ class GPMap(MapBasedModel):
         # cleanup
         os.remove(self.landmass_path)
         
-    def upload(self, latest_timestamp_in_dataset: pd.Timestamp = self.today):
+    def upload(self, latest_timestamp_in_dataset: pd.Timestamp = None):
         """Uploads the recalculated map to the Hugging Face model hub.
         
         Clean cached files.
         """
+        if latest_timestamp_in_dataset is None:
+            latest_timestamp_in_dataset = self.today
+            
         logger.info(f"Shape of uploading map: {self.raw_raster.shape}")
         data_dict = {"numpy": self.raw_raster, "uncertainties": self.uncertainties}
         dataset = Dataset.from_dict(data_dict)
