@@ -1,4 +1,5 @@
 import sqlite3
+import logging
 
 import geopandas as gpd
 import pandas as pd
@@ -6,6 +7,9 @@ import shapely
 from rasterio.crs import CRS
 
 from .utils_map import *
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 DAY = 24 * 60
 WAIT_MAX = DAY
@@ -42,7 +46,7 @@ def get_points(path, wait_max=WAIT_MAX, begin:pd.Timestamp=pd.Timestamp.min, unt
     points.crs = CRS.from_epsg(4326)
     points = points.to_crs(epsg=3857)
 
-    print(f"Got {len(points)} points from {begin.date()} to {until.date()}.")
+    logger.info(f"Got {len(points)} points from {begin.date()} to {until.date()}.")
 
     return points
 

@@ -5,6 +5,7 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.metrics import mean_absolute_error, root_mean_squared_error
 from sklearn.model_selection import cross_validate
 from sklearn.utils._testing import ignore_warnings
+import logging
 
 from .numeric_transformers import MyLogTransformer
 from .transformed_target_regressor_with_uncertainty import TransformedTargetRegressorWithUncertainty
@@ -37,15 +38,15 @@ class TargetTransformer(TransformerMixin, BaseEstimator):
 def evaluate(model, train, validation, features=["lon", "lat"]):
     train["pred"] = model.predict(train[features].values)
 
-    print(f"Training RMSE: {root_mean_squared_error(train['wait'], train['pred'])}")
-    print(f"Training MAE {mean_absolute_error(train['wait'], train['pred'])}")
+    logger.info(f"Training RMSE: {root_mean_squared_error(train['wait'], train['pred'])}")
+    logger.info(f"Training MAE {mean_absolute_error(train['wait'], train['pred'])}")
 
     validation["pred"] = model.predict(validation[features].values)
 
-    print(
+    logger.info(
         f"Validation RMSE: {root_mean_squared_error(validation['wait'], validation['pred'])}"
     )
-    print(
+    logger.info(
         f"Validation MAE {mean_absolute_error(validation['wait'], validation['pred'])}\n"
     )
 
@@ -62,15 +63,15 @@ def evaluate_cv(estimator, X, y, folds=5):
         return_estimator=True,
     )
 
-    print("Cross-validated averaged metrics...")
-    print(
+    logger.info("Cross-validated averaged metrics...")
+    logger.info(
         f"Training RMSE: {cv_result['train_neg_root_mean_squared_error'].mean() * -1}"
     )
-    print(f"Training MAE: {cv_result['train_neg_mean_absolute_error'].mean() * -1}")
-    print(
+    logger.info(f"Training MAE: {cv_result['train_neg_mean_absolute_error'].mean() * -1}")
+    logger.info(
         f"Validation RMSE: {cv_result['test_neg_root_mean_squared_error'].mean() * -1}"
     )
-    print(f"Validation MAE: {cv_result['test_neg_mean_absolute_error'].mean() * -1}\n")
+    logger.info(f"Validation MAE: {cv_result['test_neg_mean_absolute_error'].mean() * -1}\n")
 
     # returning one estimators trained on all samples for visualization purposes
     return estimator.fit(X, y)
@@ -102,9 +103,9 @@ def fit_gpr(gpr, X, y):
 
 @ignore_warnings(category=ConvergenceWarning)
 def fit_gpr_silent(gpr, X, y):
-    print(f"Fitting Gaussian Process Regressor with X of shape {X.shape} and y of shape {y.shape}...")
+    logger.info(f"Fitting Gaussian Process Regressor with X of shape {X.shape} and y of shape {y.shape}...")
     gpr.fit(X, y)
-    print("Fitting done.")
+    logger.info("Fitting done.")
 
     return gpr
 

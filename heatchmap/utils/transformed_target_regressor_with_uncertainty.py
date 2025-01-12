@@ -1,11 +1,11 @@
-# from https://github.com/scikit-learn/scikit-learn/issues/24638
-
-
+import logging
 from sklearn.base import BaseEstimator
 from sklearn.compose import TransformedTargetRegressor
 
 from .numeric_transformers import Transformer
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class TransformedTargetRegressorWithUncertainty(TransformedTargetRegressor):
     """Thin wrapper over sklearn.compose.TransformedTargetRegressor.
@@ -40,7 +40,7 @@ class TransformedTargetRegressorWithUncertainty(TransformedTargetRegressor):
     def predict(self, X, return_std=False, transform_predictions=True, verbose=True, **predict_params):
         """Predict using the underlying regressor and transform the result back.
         """
-        print(f"Model called for prediction with X of shape {X.shape}")
+        logger.info(f"Model called for prediction with X of shape {X.shape}")
         # always return the standard deviation as it is required for the proper inverse_transform
         # regressor_ is the fitted regressor
         model: BaseEstimator = self.regressor_
