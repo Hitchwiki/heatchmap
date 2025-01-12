@@ -1,4 +1,5 @@
 import time
+import logging
 
 import geopandas as gpd
 import numpy as np
@@ -15,6 +16,7 @@ tqdm.pandas()
 
 RESOLUTION = 2
 
+logger = logging.getLogger(__name__)
 
 def save_numpy_map(
     map,
@@ -109,7 +111,7 @@ def raster_from_model(
 
     # transposing the grid enables us to iterate over it vertically
     # and single elements become lon-lat pairs that can be fed into the model
-    print("Compute rows of pixels...")
+    logger.info("Compute rows of pixels...")
     start = time.time()
     for vertical_line in tqdm(grid.transpose(), disable=not verbose):
         if show_uncertainties:
@@ -119,8 +121,8 @@ def raster_from_model(
             pred = model.predict(vertical_line)
         map = np.vstack((map, pred))
 
-    print(f"Time elapsed to compute full map: {time.time() - start}")
-    print(
+    logger.info(f"Time elapsed to compute full map: {time.time() - start}")
+    logger.info(
         f"For map of shape: {map.shape} that is {map.shape[0] * map.shape[1]} pixels and a time per pixel of {(time.time() - start) / (map.shape[0] * map.shape[1])} seconds"
     )
 

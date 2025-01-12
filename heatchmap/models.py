@@ -3,6 +3,7 @@ import pandas as pd
 from shapely.geometry import Point
 from sklearn.base import BaseEstimator, RegressorMixin
 from tqdm.auto import tqdm
+import logging
 
 from .map_based_model import MapBasedModel
 
@@ -13,6 +14,7 @@ RESOLUTION = 2
 # 180 degree meridian in epsg 3857
 MERIDIAN = 20037508
 
+logger = logging.getLogger(__name__)
 
 class Average(BaseEstimator, RegressorMixin):
     def __init__(self):
@@ -175,7 +177,7 @@ class WeightedAveragedGaussian(MapBasedModel):
             # create a raster map - resulution is defined above
             # https://stackoverflow.com/questions/56677267/tqdm-extract-time-passed-time-remaining
             if self.verbose:
-                print("Weighting gaussians for all points...")
+                logger.info("Weighting gaussians for all points...")
             with tqdm(
                 zip(X[:, 0], X[:, 1], y), total=X.shape[0], disable=not self.verbose
             ) as t:
