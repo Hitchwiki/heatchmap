@@ -153,16 +153,16 @@ class GPMap(MapBasedModel):
                 if len(to_predict) == self.batch_size:
                     waiting_times, uncertainties = self.gpr.predict(np.array(to_predict), return_std=True)
                     for i, (y, x) in enumerate(pixels_to_predict):
-                        self.raw_raster[y][x] = waiting_time[i]
+                        self.raw_raster[y][x] = waiting_times[i]
                         self.uncertainties[y][x] = uncertainties[i]
 
                     to_predict = []
                     pixels_to_predict = []
         
         if len(to_predict) > 0:
-            waiting_time, uncertainties = self.gpr.predict(np.array(to_predict), return_std=True)
+            waiting_times, uncertainties = self.gpr.predict(np.array(to_predict), return_std=True)
             for i, (y, x) in enumerate(pixels_to_predict):
-                self.raw_raster[y][x] = waiting_time[i]
+                self.raw_raster[y][x] = waiting_times[i]
                 self.uncertainties[y][x] = uncertainties[i]
                 
 
