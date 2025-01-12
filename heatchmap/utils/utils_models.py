@@ -102,7 +102,9 @@ def fit_gpr(gpr, X, y):
 
 @ignore_warnings(category=ConvergenceWarning)
 def fit_gpr_silent(gpr, X, y):
+    print(f"Fitting Gaussian Process Regressor with X of shape {X.shape} and y of shape {y.shape}...")
     gpr.fit(X, y)
+    print("Fitting done.")
 
     return gpr
 

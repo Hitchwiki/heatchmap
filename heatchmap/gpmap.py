@@ -7,6 +7,7 @@ import requests
 import zipfile
 import io
 import shutil
+import logging
 
 import geopandas as gpd
 import numpy as np
@@ -24,12 +25,19 @@ from .map_based_model import MapBasedModel
 from .utils.utils_data import get_points
 from .utils.utils_models import fit_gpr_silent
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 class GPMap(MapBasedModel):
     def __init__(self, region="world", resolution=10, version="prod", visual:bool=False):
+        """Initialize the GPMap object.
+        
+        Loading the latest map and model from Hugging Face.
+        """
         self.visual = visual
         
         self.cache_dir = f"{HERE}/cache"
@@ -41,7 +49,7 @@ class GPMap(MapBasedModel):
         response.raise_for_status()  # Check for HTTP request errors
         with open(self.points_path, "wb") as file:
             file.write(response.content)
-            print(f"Downloaded Hitchmap data to: {self.points_path}")
+            logger.info(f"Downloaded Hitchmap data to: {self.points_path}")
 
         if os.path.exists("models/kernel.pkl"):
             self.gpr_path = "models/kernel.pkl"
@@ -56,7 +64,9 @@ class GPMap(MapBasedModel):
         super().__init__(method=type(self.gpr).__name__, region=region, resolution=resolution, version=version, verbose=False)
         
         map_dataset_dict = load_dataset("tillwenke/heatchmap-map", cache_dir=f"{HERE}/cache/huggingface")
+        # choosing the latest map; dataset splits are dates
         split = list(map_dataset_dict.keys())[-1]
+        logger.info(f"Loading map from {split}.")
         self.map_dataset = map_dataset_dict[split]
         self.map_dataset = self.map_dataset.with_format("np")
         self.raw_raster = self.map_dataset["numpy"]
@@ -67,10 +77,10 @@ class GPMap(MapBasedModel):
             
         try:
             self.begin = pd.Timestamp.strptime(split, "%Y.%m.%d")
-            print(f"Last map update was on {self.begin.date()}.")
+            logger.info(f"Last map update was on {self.begin.date()}.")
         except Exception as e: 
             self.begin = pd.Timestamp(self.today.date() - pd.Timedelta(days=1))
-            print(f"No map update found with {e}. Using yesterday as begin date.")
+            logger.info(f"No map update found with {e}. Using yesterday as begin date.")
 
         self.batch_size = 10000
         
@@ -90,19 +100,19 @@ class GPMap(MapBasedModel):
     
 
             # Download the dataset
-            print("Downloading countries dataset...")
+            logger.info("Downloading countries dataset...")
             response = requests.get(url)
             response.raise_for_status()  # Raise an error for bad responses
 
             # Extract the zip file
-            print("Extracting files...")
+            logger.info("Extracting files...")
             with zipfile.ZipFile(io.BytesIO(response.content)) as z:
                 z.extractall(output_dir)
 
-            print(f"Countries dataset downloaded and extracted to: {output_dir}")
+            logger.info(f"Countries dataset downloaded and extracted to: {output_dir}")
         
         else:
-            print(f"Countries dataset already exists at: {self.shapely_countries}")
+            logger.info(f"Countries dataset already exists at: {self.shapely_countries}")
 
     def recalc_map(self):
         """Recalculate the map with the current Gaussian Process model.
@@ -128,7 +138,7 @@ class GPMap(MapBasedModel):
         self.get_map_grid()
         self.get_recalc_raster()
 
-        print("Compute pixels that are expected to differ...")
+        logger.info("Compute pixels that are expected to differ...")
         start = time.time()
         to_predict = []
         pixels_to_predict = []
@@ -155,12 +165,12 @@ class GPMap(MapBasedModel):
             for i, (y, x) in enumerate(pixels_to_predict):
                 self.raw_raster[y][x] = prediction[i]
 
-        print(f"Time elapsed to compute full map: {time.time() - start}")
-        print(
+        logger.info(f"Time elapsed to compute full map: {time.time() - start}")
+        logger.info(
             f"For map of shape: {self.raw_raster.shape} that is {self.raw_raster.shape[0] * self.raw_raster.shape[1]} pixels and an effective time per pixel of {(time.time() - start) / (self.raw_raster.shape[0] * self.raw_raster.shape[1])} seconds"
         )
-        print(f"Only {self.recalc_raster.sum()} pixels were recalculated. That is {self.recalc_raster.sum() / (self.raw_raster.shape[0] * self.raw_raster.shape[1]) * 100}% of the map.")
-        print(f"And time per recalculated pixel was {(time.time() - start) / self.recalc_raster.sum()} seconds")
+        logger.info(f"Only {self.recalc_raster.sum()} pixels were recalculated. That is {self.recalc_raster.sum() / (self.raw_raster.shape[0] * self.raw_raster.shape[1]) * 100}% of the map.")
+        logger.info(f"And time per recalculated pixel was {(time.time() - start) / self.recalc_raster.sum()} seconds")
 
         # np.savetxt(self.map_path, self.raw_raster)
         # self.save_as_rasterio()
@@ -204,15 +214,16 @@ class GPMap(MapBasedModel):
         self.get_landmass_raster()
         
         if self.raw_raster is None:
-            print("No map found. Recalculating whole map.")
+            logger.info("No map found. Recalculating whole map.")
             self.recalc_raster = np.ones(self.grid.shape[1:])
         else:
+            logger.info("Recalculating only around new points.")
             self.recalc_raster = np.zeros(self.grid.shape[1:])
 
             new_points = get_points(self.points_path, begin=self.begin, until=self.today)
             new_points["lon"] = new_points.geometry.x
             new_points["lat"] = new_points.geometry.y
-            print(f"Recalculating map for {len(new_points)} new points.")
+            logger.info(f"Recalculating map for {len(new_points)} new points from {self.begin.date()} to {self.today.date()}.")
             for i, point in new_points.iterrows():
                 lat_pixel, lon_pixel = self.pixel_from_point(point)
 
@@ -224,12 +235,13 @@ class GPMap(MapBasedModel):
             
         self.show_raster(self.recalc_raster) if self.visual else None
             
-        print("Report reduction of rasters.")
-        print(self.recalc_raster.sum(), self.recalc_raster.shape[0] * self.recalc_raster.shape[1], self.recalc_raster.sum() / (self.recalc_raster.shape[0] * self.recalc_raster.shape[1]))
+        logger.info("Report reduction of rasters.")
+        logger.info(f"{int(self.recalc_raster.sum())} out of {self.recalc_raster.shape[0] * self.recalc_raster.shape[1]} pixels are around new points - that is {round(self.recalc_raster.sum() / (self.recalc_raster.shape[0] * self.recalc_raster.shape[1]),2) * 100} %")
         self.recalc_raster = self.recalc_raster * self.landmass_raster
         self.show_raster(self.recalc_raster) if self.visual else None
-        print(self.landmass_raster.sum(), self.landmass_raster.shape[0] * self.landmass_raster.shape[1], self.landmass_raster.sum() / (self.landmass_raster.shape[0] * self.landmass_raster.shape[1]))
-        print(self.recalc_raster.sum(), self.recalc_raster.shape[0] * self.recalc_raster.shape[1], self.recalc_raster.sum() / (self.recalc_raster.shape[0] * self.recalc_raster.shape[1]))
+        logger.info(f"{int(self.landmass_raster.sum())} out of {self.landmass_raster.shape[0] * self.landmass_raster.shape[1]} pixels are landmass - that is {round(self.landmass_raster.sum() / (self.landmass_raster.shape[0] * self.landmass_raster.shape[1]),2) * 100} %")
+        logger.info(f"{int(self.recalc_raster.sum())} out of {self.recalc_raster.shape[0] * self.recalc_raster.shape[1]} pixels are around new points - that is {round(self.recalc_raster.sum() / (self.recalc_raster.shape[0] * self.recalc_raster.shape[1]),2) * 100} %")
+
 
     def get_landmass_raster(self):
         """Creates raster of landmass as np.array"""
@@ -308,15 +320,13 @@ class GPMap(MapBasedModel):
         
         Clean cached files.
         """
-        print(self.raw_raster.shape)
+        logger.info(f"Shape of uploading map: {self.raw_raster.shape}")
         d = {"numpy": self.raw_raster}
         ds = Dataset.from_dict(d)
-        print(len(ds["numpy"]), len(ds["numpy"][0]))
         ds = ds.with_format("np")
-        print(ds["numpy"].shape)
         ds_dict = DatasetDict({self.today.strftime("%Y.%m.%d"): ds})
 
         ds_dict.push_to_hub("tillwenke/heatchmap-map")
-        print("Uploaded new map to Hugging Face dataset hub.")
+        logger.info("Uploaded new map to Hugging Face dataset hub.")
         
         shutil.rmtree(self.cache_dir)
