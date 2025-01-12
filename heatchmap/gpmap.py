@@ -76,8 +76,12 @@ class GPMap(MapBasedModel):
             logger.info(f"Loading map from {split}.")
             self.map_dataset = map_dataset_dict[split]
             self.map_dataset = self.map_dataset.with_format("np")
-            self.raw_raster = self.map_dataset["numpy"]
-            self.uncertainties = self.map_dataset["uncertainties"]
+            self.raw_raster = self.map_dataset["waiting_times"] if "waiting_times" in self.map_dataset.column_names else None
+            self.uncertainties = self.map_dataset["uncertainties"] if "uncertainties" in self.map_dataset.column_names else None
+            if self.raw_raster is None:
+                logger.info("No waiting times found in map.")
+            if self.uncertainties is None:
+                logger.info("No uncertainties found in map.")
         
         self.today = pd.Timestamp.now()
         try:
@@ -318,7 +322,7 @@ class GPMap(MapBasedModel):
             latest_timestamp_in_dataset = self.today
             
         logger.info(f"Shape of uploading map: {self.raw_raster.shape}")
-        data_dict = {"numpy": self.raw_raster, "uncertainties": self.uncertainties}
+        data_dict = {"waiting_times": self.raw_raster, "uncertainties": self.uncertainties}
         dataset = Dataset.from_dict(data_dict)
         dataset = dataset.with_format("np")
         dataset_dict = DatasetDict({latest_timestamp_in_dataset.strftime("%Y.%m.%d"): dataset})
