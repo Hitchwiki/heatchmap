@@ -171,7 +171,7 @@ class GPMap(MapBasedModel):
             f"For map of shape: {self.raw_raster.shape} that is {self.raw_raster.shape[0] * self.raw_raster.shape[1]} pixels and an effective time per pixel of {(time.time() - start) / (self.raw_raster.shape[0] * self.raw_raster.shape[1])} seconds"
         )
         logger.info(f"Only {self.recalc_raster.sum()} pixels were recalculated. That is {self.recalc_raster.sum() / (self.raw_raster.shape[0] * self.raw_raster.shape[1]) * 100}% of the map.")
-        logger.info(f"And time per recalculated pixel was {(time.time() - start) / self.recalc_raster.sum()} seconds")
+        logger.info(f"And time per recalculated pixel was {(time.time() - start) / self.recalc_raster.sum()} seconds") if self.recalc_raster.sum() > 0 else None
 
     def show_raster(self, raster: np.array):
         """Show the raster in a plot.
