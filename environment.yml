@@ -8,11 +8,11 @@ dependencies:
     - geopandas==1.0.1
     - matplotlib==3.10.0
     - numpy==2.2.1
-    - numexpr==2.10.2 
+    - numexpr==2.10.2
     - osmnx==1.7.0
     - pandas==2.2.3
     - rasterio==1.4.3
-    - git+https://github.com/Hitchwiki/scikit-learn.git@main
+    - scikit-learn==1.6.1
     - scipy==1.15.0
     - shapely==2.0.6
     - tqdm==4.67.1
