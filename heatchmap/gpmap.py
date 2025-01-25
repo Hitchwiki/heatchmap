@@ -54,7 +54,7 @@ class GPMap(MapBasedModel):
         except Exception as e:
             logger.info(f"Failed to download Hitchmap data with {e}. Might be that on older version is still available.")
             
-        if not os.path.isfile(self.points_path()):
+        if not os.path.isfile(self.points_path):
             raise FileNotFoundError(f"No Hitchmap data found at {self.points_path}.")
 
         if os.path.exists("models/kernel.pkl"):
