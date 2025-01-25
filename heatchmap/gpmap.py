@@ -1,18 +1,18 @@
 """Module to recalculate the map with the current Gaussian Process model."""
-import glob
+import io
+import logging
 import os
 import pickle
-import time
-import requests
-import zipfile
-import io
 import shutil
-import logging
+import time
+import zipfile
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import rasterio
+import requests
+from datasets import Dataset, DatasetDict, load_dataset
 from huggingface_hub import hf_hub_download
 from matplotlib import pyplot as plt
 from rasterio.control import GroundControlPoint as GCP
@@ -20,7 +20,7 @@ from rasterio.crs import CRS
 from rasterio.transform import from_gcps
 from shapely.validation import make_valid
 from tqdm import tqdm
-from datasets import load_dataset, Dataset, DatasetDict
+
 from .map_based_model import MapBasedModel
 from .utils.utils_data import get_points
 from .utils.utils_models import fit_gpr_silent
@@ -174,9 +174,11 @@ class GPMap(MapBasedModel):
 
         logger.info(f"Time elapsed to compute full map: {time.time() - start}")
         logger.info(
-            f"For map of shape: {self.raw_raster.shape} that is {self.raw_raster.shape[0] * self.raw_raster.shape[1]} pixels and an effective time per pixel of {(time.time() - start) / (self.raw_raster.shape[0] * self.raw_raster.shape[1])} seconds"
+            f"For map of shape: {self.raw_raster.shape} that is {self.raw_raster.shape[0] * self.raw_raster.shape[1]} pixels "
+            + f"and an effective time per pixel of {(time.time() - start) / (self.raw_raster.shape[0] * self.raw_raster.shape[1])} seconds"
         )
-        logger.info(f"Only {self.recalc_raster.sum()} pixels were recalculated. That is {self.recalc_raster.sum() / (self.raw_raster.shape[0] * self.raw_raster.shape[1]) * 100}% of the map.")
+        logger.info(f"Only {self.recalc_raster.sum()} pixels were recalculated. "
+                    + f"That is {self.recalc_raster.sum() / (self.raw_raster.shape[0] * self.raw_raster.shape[1]) * 100}% of the map.")
         logger.info(f"And time per recalculated pixel was {(time.time() - start) / self.recalc_raster.sum()} seconds") if self.recalc_raster.sum() > 0 else None
 
     def show_raster(self, raster: np.array):
@@ -240,11 +242,14 @@ class GPMap(MapBasedModel):
         self.show_raster(self.recalc_raster) if self.visual else None
             
         logger.info("Report reduction of rasters.")
-        logger.info(f"{int(self.recalc_raster.sum())} out of {self.recalc_raster.shape[0] * self.recalc_raster.shape[1]} pixels are around new points - that is {round(self.recalc_raster.sum() / (self.recalc_raster.shape[0] * self.recalc_raster.shape[1]),2) * 100} %")
+        logger.info(f"{int(self.recalc_raster.sum())} out of {self.recalc_raster.shape[0] * self.recalc_raster.shape[1]} pixels "
+                    +f"are around new points - that is {round(self.recalc_raster.sum() / (self.recalc_raster.shape[0] * self.recalc_raster.shape[1]),2) * 100} %")
         self.recalc_raster = self.recalc_raster * self.landmass_raster
         self.show_raster(self.recalc_raster) if self.visual else None
-        logger.info(f"{int(self.landmass_raster.sum())} out of {self.landmass_raster.shape[0] * self.landmass_raster.shape[1]} pixels are landmass - that is {round(self.landmass_raster.sum() / (self.landmass_raster.shape[0] * self.landmass_raster.shape[1]),2) * 100} %")
-        logger.info(f"{int(self.recalc_raster.sum())} out of {self.recalc_raster.shape[0] * self.recalc_raster.shape[1]} pixels are around new points - that is {round(self.recalc_raster.sum() / (self.recalc_raster.shape[0] * self.recalc_raster.shape[1]),2) * 100} %")
+        logger.info(f"{int(self.landmass_raster.sum())} out of {self.landmass_raster.shape[0] * self.landmass_raster.shape[1]} pixels are landmass "
+                    +f"- that is {round(self.landmass_raster.sum() / (self.landmass_raster.shape[0] * self.landmass_raster.shape[1]),2) * 100} %")
+        logger.info(f"{int(self.recalc_raster.sum())} out of {self.recalc_raster.shape[0] * self.recalc_raster.shape[1]} pixels "
+                    +f"are around new points - that is {round(self.recalc_raster.sum() / (self.recalc_raster.shape[0] * self.recalc_raster.shape[1]),2) * 100} %")
 
 
     def get_landmass_raster(self):

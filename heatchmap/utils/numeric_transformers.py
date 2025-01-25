@@ -1,7 +1,7 @@
 # from https://github.com/scikit-learn/scikit-learn/issues/24638
 
-from enum import Enum
 import logging
+from enum import Enum
 
 import numpy as np
 import pandas as pd

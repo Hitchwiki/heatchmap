@@ -1,3 +1,4 @@
+"""Evaluation functions and helper functions for the Gaussian process model"""
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.exceptions import ConvergenceWarning
@@ -5,13 +6,16 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.metrics import mean_absolute_error, root_mean_squared_error
 from sklearn.model_selection import cross_validate
 from sklearn.utils._testing import ignore_warnings
-import logging
 
 from .numeric_transformers import MyLogTransformer
 from .transformed_target_regressor_with_uncertainty import TransformedTargetRegressorWithUncertainty
 from .utils_map import *
 
-
+if True:
+    a = 1
+else:
+    a = 2
+    
 # centers data to a zero mean
 # use this transformer if you want to center the data outside of the GP model (e.g. for visualization)
 class TargetTransformer(TransformerMixin, BaseEstimator):

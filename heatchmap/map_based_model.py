@@ -1,7 +1,7 @@
 """Map-based model for hitchhiking waiting times."""
+import logging
 import os
 import time
-import logging
 
 import geopandas as gpd
 import matplotlib.colors as colors

@@ -1,5 +1,5 @@
-import time
 import logging
+import time
 
 import geopandas as gpd
 import numpy as np

@@ -1,14 +1,17 @@
+import logging
+
 import numpy as np
 import pandas as pd
 from shapely.geometry import Point
 from tqdm.auto import tqdm
-import logging
 
 from .map_based_model import MapBasedModel
 
 tqdm.pandas()
 
 RESOLUTION = 2
+K = 5
+FACTOR_STDV = 2 # TODO: still needs no be set appropriately
 
 # 180 degree meridian in epsg 3857
 MERIDIAN = 20037508
@@ -58,7 +61,7 @@ class WeightedAveragedGaussian(MapBasedModel):
         if self.method == "DYNAMIC":
             stdv_m = max(
                 self.circle_size,
-                calc_radius(Point(lon, lat), self.points.geometry, k=K),
+                self.calc_radius(Point(lon, lat), self.points.geometry, k=K),
             )
         else:
             stdv_m = self.circle_size + 10000 * self.iteration
@@ -90,7 +93,7 @@ class WeightedAveragedGaussian(MapBasedModel):
             if recompute:
                 raise Exception("recompute")
             else:
-                Z = np.loadtxt(f"intermediate/map_{region}.txt", dtype=float)
+                Z = np.loadtxt(f"intermediate/map_{self.region}.txt", dtype=float)
 
         except Exception as _:
             # create a raster map - resulution is defined above

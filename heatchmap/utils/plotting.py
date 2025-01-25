@@ -1,9 +1,10 @@
+import logging
+
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
-import logging
 
 from .numeric_transformers import exp_minus_tiny, log_plus_tiny
 from .utils_data import get_points
