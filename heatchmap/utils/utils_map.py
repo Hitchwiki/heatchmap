@@ -7,7 +7,6 @@ import rasterio
 import rasterio.mask
 import rasterio.plot
 from shapely.geometry import Polygon
-from tqdm import tqdm
 from tqdm.auto import tqdm
 
 from ..map_based_model import MapBasedModel
@@ -124,7 +123,8 @@ def raster_from_model(
 
     logger.info(f"Time elapsed to compute full map: {time.time() - start}")
     logger.info(
-        f"For map of shape: {map.shape} that is {map.shape[0] * map.shape[1]} pixels and a time per pixel of {(time.time() - start) / (map.shape[0] * map.shape[1])} seconds"
+        f"For map of shape: {map.shape} that is {map.shape[0] * map.shape[1]} pixels and a time per pixel of "
+        + f"{(time.time() - start) / (map.shape[0] * map.shape[1])} seconds"
     )
 
     # because we vstacked above
@@ -150,7 +150,7 @@ def raster_from_model(
             version=version,
         )
 
-    raster_maker.raw_raster: np.array = map
+    raster_maker.raw_raster = map
     if show_uncertainties:
         raster_maker.raw_uncertainties = uncertainty_map
 
@@ -225,7 +225,3 @@ def generate_highres_map(
         discrete_uncertainties=discrete_uncertainties,
         figsize=figsize,
     )
-
-
-def map(region="world"):
-    show_map(path=f"final_maps/{region}.png")

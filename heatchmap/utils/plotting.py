@@ -8,7 +8,6 @@ from matplotlib.colors import LogNorm
 
 from .numeric_transformers import exp_minus_tiny, log_plus_tiny
 from .utils_data import get_points
-from .utils_map import *
 from .utils_models import TargetTransformer
 
 logging.basicConfig(level=logging.INFO)
@@ -27,7 +26,6 @@ def plot_distribution_of_data_points():
     ]
     europe_without_germany_shape = europe_without_germany.geometry.unary_union
 
-    world = countries[countries.CONTINENT != "Europe"]
     germany_data = points[points.geometry.within(germany.geometry.values[0])]
     europe_without_germany_data = points[
         points.geometry.within(europe_without_germany_shape)
@@ -37,7 +35,7 @@ def plot_distribution_of_data_points():
     europe_data = pd.concat([germany_data, europe_without_germany_data])
 
     world_data = points[~(points.index.isin(europe_data.index))]
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 10))
+    _, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 10))
 
     europe.plot(ax=ax1, facecolor="none", edgecolor="black")
     germany_data.plot(ax=ax1, markersize=0.01, color="red")
@@ -196,12 +194,12 @@ def plot_lml_depending_on_lengthscale_noise(gpr):
     plt.show()
 
 def plot_rbf_covariance():
-    def rbf(x, l, s=1.0):
-        return s * np.exp(-0.5 * (x**2 / l**2))
+    def rbf(x:float, length_scale:float, s:float=1.0):
+        return s * np.exp(-0.5 * (x**2 / length_scale**2))
 
     X_distance = np.logspace(0, 6, 100)
 
-    fig, (ax1, ax2) = plt.subplots(2, figsize=(10, 5))
+    _, (ax1, ax2) = plt.subplots(2, figsize=(10, 5))
 
     lengthscale = 1.68e5
     ax1.plot(X_distance, rbf(X_distance, lengthscale, 1.0))

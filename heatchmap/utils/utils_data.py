@@ -6,7 +6,7 @@ import pandas as pd
 import shapely
 from rasterio.crs import CRS
 
-from .utils_map import *
+from .utils_map import get_points_in_region
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,7 +15,18 @@ DAY = 24 * 60
 WAIT_MAX = DAY
 
 
-def get_points(path, wait_max=WAIT_MAX, begin:pd.Timestamp=pd.Timestamp.min, until:pd.Timestamp=pd.Timestamp.today()):
+def get_points(path, wait_max=WAIT_MAX, begin:pd.Timestamp=pd.Timestamp.min, until:pd.Timestamp=None):
+    """Get points from a file.
+    
+    Args:
+        path (str): path to the file
+        wait_max (int): maximum waiting time in minutes
+        begin (pd.Timestamp): beginning of the time frame
+        until (pd.Timestamp): end of the time frame, default is today
+    """
+    if until is None:
+        until = pd.Timestamp.today()
+
     file_type = path.split(".")[-1]
     if file_type == "csv":
         points = gpd.read_file(path)
@@ -79,11 +90,7 @@ def get_cut_through_germany():
         lambda point: shapely.ops.transform(lambda x, y: (x, vertical_cut), point)
     )
     val["lat"] = vertical_cut
-
-    # ->
-    test_start = 0.4e6
-    test_stop = 1.7e6
-
+    
     return points, val
 
 

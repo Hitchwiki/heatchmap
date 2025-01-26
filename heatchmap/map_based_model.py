@@ -165,7 +165,7 @@ class MapBasedModel(BaseEstimator, RegressorMixin):
         self.raw_raster = self.raw_raster.astype(np.float64)
 
         # save the colored raster using the above transform
-        # important: rasterio requires [0,0] of the raster to be in the upper left corner and [rows, cols] in the lower right corner
+        # important: rasterio requires [0,0] of the raster to be in the upper left and [rows, cols] in the lower right corner
         # TODO find out why raster is getting smaller in x direction when stored as tif (e.g. 393x700 -> 425x700)
         with rasterio.open(
             self.rasterio_path,
@@ -264,10 +264,7 @@ class MapBasedModel(BaseEstimator, RegressorMixin):
 
         """
         # setup
-        if not hasattr(self, "raw_uncertainties"):
-            uncertainties = 1.0
-        else:
-            uncertainties = self.raw_uncertainties
+        uncertainties = 1.0 if not hasattr(self, "raw_uncertainties") else self.raw_uncertainties
         self.map_boundary = self.get_map_boundary()
 
         fig, ax = plt.subplots(figsize=(figsize, figsize))
@@ -540,13 +537,10 @@ wenke.till@gmail.com"""
         cbar.ax.tick_params(labelsize=figsize)
 
         if self.method == "ITERATIVE":
-            file_name = f"maps/map_{region}_iter_{ITERATIONS}.png"
+            file_name = f"maps/map_{self.region}_iter.png"
         elif self.method == "DYNAMIC":
-            file_name = f"maps/map_{region}_{K}.png"
+            file_name = f"maps/map_{self.region}.png"
         else:
-            if final:
-                file_name = f"final_maps/{self.region}.png"
-            else:
-                file_name = f"maps/{self.method}_{self.region}_{self.resolution}.png"
+            file_name = f"final_maps/{self.region}.png" if final else f"maps/{self.method}_{self.region}_{self.resolution}.png"
         plt.savefig(file_name, bbox_inches="tight")
         plt.show()

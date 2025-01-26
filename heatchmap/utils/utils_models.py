@@ -1,4 +1,6 @@
 """Evaluation functions and helper functions for the Gaussian process model"""
+import logging
+
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.exceptions import ConvergenceWarning
@@ -9,13 +11,12 @@ from sklearn.utils._testing import ignore_warnings
 
 from .numeric_transformers import MyLogTransformer
 from .transformed_target_regressor_with_uncertainty import TransformedTargetRegressorWithUncertainty
-from .utils_map import *
 
-if True:
-    a = 1
-else:
-    a = 2
-    
+logging.basicConfig(level=logging.INFO)
+
+logger = logging.getLogger(__name__)
+
+
 # centers data to a zero mean
 # use this transformer if you want to center the data outside of the GP model (e.g. for visualization)
 class TargetTransformer(TransformerMixin, BaseEstimator):
@@ -39,7 +40,14 @@ class TargetTransformer(TransformerMixin, BaseEstimator):
         return self.transform(y)
 
 
-def evaluate(model, train, validation, features=["lon", "lat"]):
+def evaluate(model, train, validation, features:list[str]=None):
+    """Evaluate the model on the training and validation set.
+
+    Args:
+        feature(list[str]): list of features to be used for the model, default is ["lon", "lat"]
+    """
+    if features is None:
+        features = ["lon", "lat"]
     train["pred"] = model.predict(train[features].values)
 
     logger.info(f"Training RMSE: {root_mean_squared_error(train['wait'], train['pred'])}")
@@ -116,9 +124,6 @@ def fit_gpr_silent(gpr, X, y):
 
 def get_optimized_gpr(initial_kernel, X, y, train_from_scratch: bool=True, verbose : bool=False):
     gpr = get_gpr(initial_kernel=initial_kernel, train_from_scrath=train_from_scratch)
-    if verbose:
-        gpr = fit_gpr(gpr, X, y)
-    else:
-        gpr = fit_gpr_silent(gpr, X, y)
+    gpr = fit_gpr(gpr, X, y) if verbose else fit_gpr_silent(gpr, X, y)
 
     return gpr
