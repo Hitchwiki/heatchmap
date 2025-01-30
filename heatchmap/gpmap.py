@@ -164,6 +164,9 @@ class GPMap(MapBasedModel):
                         self.raw_raster[y][x] = waiting_times[i]
                         self.uncertainties[y][x] = uncertainties[i]
 
+                    logger.info("Intermediate upload of map to Huggingface Hub.")
+                    self.upload()
+
                     to_predict = []
                     pixels_to_predict = []
 
@@ -350,5 +353,6 @@ class GPMap(MapBasedModel):
 
         dataset_dict.push_to_hub("tillwenke/heatchmap-map")
         logger.info("Uploaded new map to Hugging Face dataset hub.")
-
+    
+    def cleanup(self):
         shutil.rmtree(self.cache_dir)
