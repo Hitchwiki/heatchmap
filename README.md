@@ -38,3 +38,7 @@ import heatchmap
 # Example usage
 # Add your usage examples here
 ```
+
+## Contributing
+
+If you want to build predictive models related to hitchhiking (e.g. waiting time) you are welcome get get started experimenting [here](https://github.com/Hitchwiki/hitchmap-data/tree/main/visualization). If you show promising results your models can be integrated into this package as well.
