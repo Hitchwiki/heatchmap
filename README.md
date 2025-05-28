@@ -2,6 +2,15 @@
 
 [![PyPI version](https://badge.fury.io/py/heatchmap.svg)](https://badge.fury.io/py/heatchmap)
 
+## Prerequisites
+
+The up-to-date raw map is [on huggingface](https://huggingface.co/datasets/tillwenke/heatchmap-map), the model used to calculate it can be found there [as well](https://huggingface.co/tillwenke/heatchmap-model).
+
+Both - model and map - are updated monthly using the latest data from `hitchmap.com`. The update is performed using this packege in a [huggingface space](https://huggingface.co/spaces/tillwenke/heatchmap-space) which is triggered from out side via [GitHub actions](https://github.com/tillwenke/heatchmap-space-scheduler/tree/main).
+
+## Usage
+With the above prerequisites still running you can get the latest map as shown in https://github.com/Hitchwiki/hitchhiking.org.
+
 
 ## Installation
 
