@@ -246,7 +246,6 @@ class GPMap(MapBasedModel):
             new_points = get_points(self.points_path, begin=self.begin, until=self.lasted_record_time)
             new_points["lon"] = new_points.geometry.x
             new_points["lat"] = new_points.geometry.y
-            self.latest_date = new_points["datetime"].max()
             logger.info(f"Recalculating map for {len(new_points)} new points from {self.begin.date()} to {self.lasted_record_time.date()}.")  # noqa: E501
             for i, point in new_points.iterrows():
                 lat_pixel, lon_pixel = self.pixel_from_point(point)
