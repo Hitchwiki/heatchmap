@@ -137,7 +137,6 @@ class GPMap(MapBasedModel):
         Overrides the stored np.array raster of the map.
         """
         # fit model to new data points
-
         self.points = get_points(self.points_path, until=self.lasted_record_time)
         self.points["lon"] = self.points.geometry.x
         self.points["lat"] = self.points.geometry.y
@@ -148,6 +147,7 @@ class GPMap(MapBasedModel):
         # the model was optimized once and stored
         # now we only need to fit it to all data points once and can then use it to predicti the map
         self.gpr.regressor.optimizer = None
+        # CAUTION: this part takes a lot of ram (>8 GB) as the full training dataset has to be loaded into RAM at once
         self.gpr = fit_gpr_silent(self.gpr, X, y)
 
         self.get_map_grid()
