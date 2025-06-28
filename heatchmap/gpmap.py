@@ -74,7 +74,7 @@ class GPMap(MapBasedModel):
         super().__init__(method=type(self.gpr).__name__, region=region, resolution=resolution, version=version, verbose=False)
 
         map_dataset_dict = load_dataset("Hitchwiki/hitchhiking-heatmap", cache_dir=f"{HERE}/cache/huggingface")
-        # choosing the latest map; dataset splits are dates
+        # choosing the latest map; dataset splits correspond to maps until a certain date
         splits = list(map_dataset_dict.keys())
         if len(splits) == 0:
             logger.info("No map found in huggingface dataset. Recalculating whole map.")
@@ -82,6 +82,7 @@ class GPMap(MapBasedModel):
             self.raw_raster = None
             self.uncertainties = None
         else:
+            # selecting the latest map
             split = splits[-1]
             logger.info(f"Loading map from {split}.")
             self.map_dataset = map_dataset_dict[split]
@@ -93,13 +94,17 @@ class GPMap(MapBasedModel):
             if self.uncertainties is None:
                 logger.info("No uncertainties found in map.")
 
-        self.today = pd.Timestamp.now()
+        # set latest date to consider from the new records that will be used to recalculate the map
+        # this is today, thus in the resulting map, all records until today will be covered
+        # there is no problem if the acutal latest entry is from earlier than today
+        self.lasted_record_time = pd.Timestamp.now()
         try:
+            # set earliest date to consider from the new records that will be used to recalculate the map
+            # overlaps with the last date of the previous map to not leave out any records from that day
             self.begin = pd.to_datetime(split, format="%Y.%m.%d")
             logger.info(f"Last map update was on {self.begin.date()}.")
         except Exception as e:
-            self.begin = pd.Timestamp(self.today.date() - pd.Timedelta(days=1))
-            logger.info(f"No map update found with {e}. Using yesterday as begin date.")
+            raise Exception(f"No map update found with {e}. Check huggingface.")
 
         self.batch_size = 10000
         self.recalc_radius = 800000  # TODO: determine from model largest influence radius
@@ -133,7 +138,7 @@ class GPMap(MapBasedModel):
         """
         # fit model to new data points
 
-        self.points = get_points(self.points_path, until=self.today)
+        self.points = get_points(self.points_path, until=self.lasted_record_time)
         self.points["lon"] = self.points.geometry.x
         self.points["lat"] = self.points.geometry.y
 
@@ -164,8 +169,9 @@ class GPMap(MapBasedModel):
                         self.raw_raster[y][x] = waiting_times[i]
                         self.uncertainties[y][x] = uncertainties[i]
 
-                    logger.info("Intermediate upload of map to Huggingface Hub.")
-                    self.upload()
+                    # Skipping: because the re-entry point in case the run fails cannot be determined easily so far
+                    # logger.info("Intermediate upload of map to Huggingface Hub.")
+                    # self.upload()
 
                     to_predict = []
                     pixels_to_predict = []
@@ -235,10 +241,11 @@ class GPMap(MapBasedModel):
             logger.info("Recalculating only around new points.")
             self.recalc_raster = np.zeros(self.grid.shape[1:])
 
-            new_points = get_points(self.points_path, begin=self.begin, until=self.today)
+            new_points = get_points(self.points_path, begin=self.begin, until=self.lasted_record_time)
             new_points["lon"] = new_points.geometry.x
             new_points["lat"] = new_points.geometry.y
-            logger.info(f"Recalculating map for {len(new_points)} new points from {self.begin.date()} to {self.today.date()}.")
+            self.latest_date = new_points["datetime"].max()
+            logger.info(f"Recalculating map for {len(new_points)} new points from {self.begin.date()} to {self.lasted_record_time.date()}.")
             for i, point in new_points.iterrows():
                 lat_pixel, lon_pixel = self.pixel_from_point(point)
 
@@ -343,7 +350,7 @@ class GPMap(MapBasedModel):
         Clean cached files.
         """
         if latest_timestamp_in_dataset is None:
-            latest_timestamp_in_dataset = self.today
+            latest_timestamp_in_dataset = self.lasted_record_time
 
         logger.info(f"Shape of uploading map: {self.raw_raster.shape}")
         data_dict = {"waiting_times": self.raw_raster, "uncertainties": self.uncertainties}
