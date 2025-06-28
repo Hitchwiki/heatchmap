@@ -64,7 +64,7 @@ class GPMap(MapBasedModel):
         if os.path.exists("models/kernel.pkl"):
             self.gpr_path = "models/kernel.pkl"
         else:
-            REPO_ID = "tillwenke/heatchmap-model"
+            REPO_ID = "Hitchwiki/heatchmap-models"
             FILENAME = "Unfitted_GaussianProcess_TransformedTargetRegressorWithUncertainty.pkl"
             self.gpr_path = hf_hub_download(repo_id=REPO_ID, filename=FILENAME)
 
@@ -73,7 +73,7 @@ class GPMap(MapBasedModel):
 
         super().__init__(method=type(self.gpr).__name__, region=region, resolution=resolution, version=version, verbose=False)
 
-        map_dataset_dict = load_dataset("tillwenke/heatchmap-map", cache_dir=f"{HERE}/cache/huggingface")
+        map_dataset_dict = load_dataset("Hitchwiki/hitchhiking-heatmap", cache_dir=f"{HERE}/cache/huggingface")
         # choosing the latest map; dataset splits are dates
         splits = list(map_dataset_dict.keys())
         if len(splits) == 0:
@@ -351,7 +351,7 @@ class GPMap(MapBasedModel):
         dataset = dataset.with_format("np")
         dataset_dict = DatasetDict({latest_timestamp_in_dataset.strftime("%Y.%m.%d"): dataset})
 
-        dataset_dict.push_to_hub("tillwenke/heatchmap-map")
+        dataset_dict.push_to_hub("Hitchwiki/hitchhiking-heatmap")
         logger.info("Uploaded new map to Hugging Face dataset hub.")
     
     def cleanup(self):
