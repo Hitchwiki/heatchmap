@@ -4,9 +4,9 @@
 
 ## Prerequisites
 
-The up-to-date raw map is [on huggingface](https://huggingface.co/datasets/tillwenke/heatchmap-map), the model used to calculate it can be found there [as well](https://huggingface.co/tillwenke/heatchmap-model).
+The up-to-date raw map is [on huggingface](https://huggingface.co/datasets/Hitchwiki/hitchhiking-heatmap), the model used to calculate it can be found there [as well](https://huggingface.co/Hitchwiki/heatchmap-models).
 
-Both - model and map - are updated monthly using the latest data from `hitchmap.com`. The update is performed using this packege in a [huggingface space](https://huggingface.co/spaces/tillwenke/heatchmap-space) which is triggered from out side via [GitHub actions](https://github.com/tillwenke/heatchmap-space-scheduler/tree/main).
+Both - model and map - are updated monthly using the latest data from `hitchmap.com`. The update is performed by running [this script](https://github.com/Hitchwiki/hitchhiking-heatmap-generator).
 
 ## Just getting the map
 With the above prerequisites still running you can get the latest map as shown in https://github.com/Hitchwiki/hitchhiking.org.
@@ -32,13 +32,8 @@ To configure automatic linting for VS Code check out the extension [https://gith
 
 Here are some usage examples for the `heatchmap` package:
 
-```python
-import heatchmap
-
-# Example usage
-# Add your usage examples here
-```
+- https://github.com/Hitchwiki/hitchhiking-heatmap-generator
 
 ## Contributing
 
-If you want to build predictive models related to hitchhiking (e.g. waiting time) you are welcome get get started experimenting [here](https://github.com/Hitchwiki/hitchmap-data/tree/main/visualization). If you show promising results your models can be integrated into this package as well.
+If you want to build predictive models related to hitchhiking (e.g. waiting time) you are welcome get get started experimenting [here](https://github.com/Hitchwiki/hitchhiking-data/tree/main/visualization). If you show promising results your models can be integrated into this package as well.
