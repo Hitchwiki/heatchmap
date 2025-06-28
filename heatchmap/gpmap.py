@@ -104,7 +104,7 @@ class GPMap(MapBasedModel):
             self.begin = pd.to_datetime(split, format="%Y.%m.%d")
             logger.info(f"Last map update was on {self.begin.date()}.")
         except Exception as e:
-            raise Exception(f"No map update found with {e}. Check huggingface.")
+            raise Exception(f"No map update found with {e}. Check huggingface.") from e
 
         self.batch_size = 10000
         self.recalc_radius = 800000  # TODO: determine from model largest influence radius
@@ -245,7 +245,7 @@ class GPMap(MapBasedModel):
             new_points["lon"] = new_points.geometry.x
             new_points["lat"] = new_points.geometry.y
             self.latest_date = new_points["datetime"].max()
-            logger.info(f"Recalculating map for {len(new_points)} new points from {self.begin.date()} to {self.lasted_record_time.date()}.")
+            logger.info(f"Recalculating map for {len(new_points)} new points from {self.begin.date()} to {self.lasted_record_time.date()}.")  # noqa: E501
             for i, point in new_points.iterrows():
                 lat_pixel, lon_pixel = self.pixel_from_point(point)
 
