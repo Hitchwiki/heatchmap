@@ -145,6 +145,8 @@ class GPMap(MapBasedModel):
         X = self.points[["lon", "lat"]].values
         y = self.points["wait"].values
 
+        # the model was optimized once and stored
+        # now we only need to fit it to all data points once and can then use it to predicti the map
         self.gpr.regressor.optimizer = None
         self.gpr = fit_gpr_silent(self.gpr, X, y)
 
