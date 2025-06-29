@@ -148,7 +148,10 @@ class GPMap(MapBasedModel):
         X = self.points[["lon", "lat"]].values
         y = self.points["wait"].values
 
+        # the model was optimized once and stored
+        # now we only need to fit it to all data points once and can then use it to predicti the map
         self.gpr.regressor.optimizer = None
+        # CAUTION: this part takes a lot of ram (>8 GB) as the full training dataset has to be loaded into RAM at once
         self.gpr = fit_gpr_silent(self.gpr, X, y)
 
         self.get_map_grid()

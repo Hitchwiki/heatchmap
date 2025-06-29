@@ -9,7 +9,7 @@ The up-to-date raw map is [on huggingface](https://huggingface.co/datasets/Hitch
 Both - model and map - are updated monthly using the latest data from `hitchmap.com`. The update is performed by running [this script](https://github.com/Hitchwiki/hitchhiking-heatmap-generator).
 
 ## Just getting the map
-With the above prerequisites still running you can get the latest map as shown in https://github.com/Hitchwiki/hitchhiking.org.
+With the above prerequisites still running you can get the latest map with the code shown in https://github.com/Hitchwiki/hitchhiking.org which will result in the map on https://hitchhiking.org.
 
 
 ## Installation
