@@ -184,6 +184,7 @@ class MapBasedModel(BaseEstimator, RegressorMixin):
 
     def get_map_grid(self) -> np.array:
         """Create pixel grid for map."""
+        logger.info("Creating map grid...")
         xx, yy, pixel_width, pixel_height = self.define_raster()
         # handling special case when map spans over the 180 degree meridian
         if not (xx[0] > 0 and xx[2] < 0):
@@ -204,7 +205,9 @@ class MapBasedModel(BaseEstimator, RegressorMixin):
 
         grid = np.array((self.X, self.Y))
         self.grid = grid
+        logger.info(f"Map grid created with shape: {grid.shape}")
         return grid
+    
 
     def define_raster(self):
         """Defines the raster in mercator projection not in usual degrees."""

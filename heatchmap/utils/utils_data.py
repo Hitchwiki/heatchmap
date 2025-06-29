@@ -24,6 +24,7 @@ def get_points(path, wait_max=WAIT_MAX, begin:pd.Timestamp=pd.Timestamp.min, unt
         begin (pd.Timestamp): beginning of the time frame
         until (pd.Timestamp): end of the time frame, default is today
     """
+    logger.info(f"Loading points from {path}...")
     if until is None:
         until = pd.Timestamp.today()
 

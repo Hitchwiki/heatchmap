@@ -42,6 +42,7 @@ class GPMap(MapBasedModel):
 
         Loading the latest map and model from Hugging Face.
         """
+        logger.info("Initializing GPMap...")
         self.visual = visual
 
         self.cache_dir = f"{HERE}/cache"
@@ -97,7 +98,7 @@ class GPMap(MapBasedModel):
         # set latest date to consider from the new records that will be used to recalculate the map
         # this is today, thus in the resulting map, all records until today will be covered
         # there is no problem if the acutal latest entry is from earlier than today
-        self.lasted_record_time = pd.Timestamp.now()
+        self.last_record_time = pd.Timestamp.now()
         try:
             # set earliest date to consider from the new records that will be used to recalculate the map
             # overlaps with the last date of the previous map to not leave out any records from that day
@@ -130,15 +131,17 @@ class GPMap(MapBasedModel):
 
         else:
             logger.info(f"Countries dataset already exists at: {self.shapely_countries}")
+        
+        logger.info("GPMap initialized successfully.")
 
     def recalc_map(self):
         """Recalculate the map with the current Gaussian Process model.
 
         Overrides the stored np.array raster of the map.
         """
+        logger.info("Recalculating map...")
         # fit model to new data points
-
-        self.points = get_points(self.points_path, until=self.lasted_record_time)
+        self.points = get_points(self.points_path, until=self.last_record_time)
         self.points["lon"] = self.points.geometry.x
         self.points["lat"] = self.points.geometry.y
 
@@ -196,6 +199,8 @@ class GPMap(MapBasedModel):
         if self.recalc_raster.sum() > 0:
             logger.info(f"And time per recalculated pixel was {(time.time() - start) / self.recalc_raster.sum()} seconds")
 
+        logger.info("Map recalculation finished.")
+
     def show_raster(self, raster: np.array):
         """Show the raster in a plot.
 
@@ -231,6 +236,7 @@ class GPMap(MapBasedModel):
 
     def get_recalc_raster(self):
         """Creats 2d np.array of raster where only pixels that are 1 should be recalculated."""
+        logger.info("Creating raster of pixels to recalculate...")
         recalc_radius_pixels = int(np.ceil(abs(self.recalc_radius / (self.grid[0][0][0] - self.grid[0][0][1]))))
         self.get_landmass_raster()
 
@@ -241,11 +247,11 @@ class GPMap(MapBasedModel):
             logger.info("Recalculating only around new points.")
             self.recalc_raster = np.zeros(self.grid.shape[1:])
 
-            new_points = get_points(self.points_path, begin=self.begin, until=self.lasted_record_time)
+            new_points = get_points(self.points_path, begin=self.begin, until=self.last_record_time)
             new_points["lon"] = new_points.geometry.x
             new_points["lat"] = new_points.geometry.y
             self.latest_date = new_points["datetime"].max()
-            logger.info(f"Recalculating map for {len(new_points)} new points from {self.begin.date()} to {self.lasted_record_time.date()}.")  # noqa: E501
+            logger.info(f"Recalculating map for {len(new_points)} new points from {self.begin.date()} to {self.last_record_time.date()}.")  # noqa: E501
             for i, point in new_points.iterrows():
                 lat_pixel, lon_pixel = self.pixel_from_point(point)
 
@@ -278,6 +284,7 @@ class GPMap(MapBasedModel):
 
     def get_landmass_raster(self):
         """Creates raster of landmass as np.array"""
+        logger.info("Creating raster of landmass...")
         self.landmass_raster = np.ones(self.grid.shape[1:])
 
         polygon_vertices_x, polygon_vertices_y, pixel_width, pixel_height = self.define_raster()
@@ -343,14 +350,16 @@ class GPMap(MapBasedModel):
 
         # cleanup
         os.remove(self.landmass_path)
+        logger.info("Landmass raster created successfully.")
 
     def upload(self, latest_timestamp_in_dataset: pd.Timestamp = None):
         """Uploads the recalculated map to the Hugging Face model hub.
 
         Clean cached files.
         """
+        logger.info("Uploading map to Hugging Face dataset hub...")
         if latest_timestamp_in_dataset is None:
-            latest_timestamp_in_dataset = self.lasted_record_time
+            latest_timestamp_in_dataset = self.last_record_time
 
         logger.info(f"Shape of uploading map: {self.raw_raster.shape}")
         data_dict = {"waiting_times": self.raw_raster, "uncertainties": self.uncertainties}
@@ -359,7 +368,7 @@ class GPMap(MapBasedModel):
         dataset_dict = DatasetDict({latest_timestamp_in_dataset.strftime("%Y.%m.%d"): dataset})
 
         dataset_dict.push_to_hub("Hitchwiki/hitchhiking-heatmap")
-        logger.info("Uploaded new map to Hugging Face dataset hub.")
+        logger.info("Successfully uploaded new map to Hugging Face dataset hub.")
     
     def cleanup(self):
         shutil.rmtree(self.cache_dir)
