@@ -2,7 +2,7 @@ from pathlib import Path
 
 import setuptools
 
-VERSION = "0.2.8"
+VERSION = "0.2.9"
 
 NAME = "heatchmap"
 
@@ -14,7 +14,8 @@ INSTALL_REQUIRES = [
     "numpy>=2.2.1",
     "osmnx>=1.7.0",
     "pandas>=2.2.3",
-    "rasterio>=1.4.3",
+    "rasterio>=1.4.3",docker push crhitchhiking.azurecr.io/hitchhiking-heatmap-generator:v1
+
     "scikit-learn>=1.6.0",
     "scipy>=1.15.0",
     "shapely>=2.0.6",
