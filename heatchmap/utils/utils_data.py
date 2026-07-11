@@ -48,9 +48,9 @@ def get_points(path, wait_max=WAIT_MAX, begin:pd.Timestamp=pd.Timestamp.min, unt
     if file_type == "csv":
         points = gpd.read_file(path)
     elif file_type == "sqlite":
-        points = pd.read_sql('select * from points where not banned', sqlite3.connect(path))
-        # unnecessary/ unknown features
-        points = points.drop(columns=['banned','ip'])
+        # Ride points fetched from Nostr (see utils_nostr.download_nostr_points):
+        # a `points` table with datetime (record availability time), lat, lon, wait.
+        points = pd.read_sql('select datetime, lat, lon, wait from points', sqlite3.connect(path))
         points["datetime"] = pd.to_datetime(points["datetime"])
         points = points[points["datetime"] < until]
         points = points[points["datetime"] > begin]

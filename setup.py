@@ -2,7 +2,7 @@ from pathlib import Path
 
 import setuptools
 
-VERSION = "0.2.9"
+VERSION = "0.3.0"
 
 NAME = "heatchmap"
 
@@ -19,6 +19,7 @@ INSTALL_REQUIRES = [
     "scipy>=1.15.0",
     "shapely>=2.0.6",
     "tqdm>=4.67.1",
+    "websockets>=13.0",
 ]
 
 

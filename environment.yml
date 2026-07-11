@@ -16,5 +16,6 @@ dependencies:
     - scipy>=1.15.0
     - shapely>=2.0.6
     - tqdm>=4.67.1
+    - websockets>=13.0
 
 

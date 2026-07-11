@@ -41,6 +41,7 @@ from tqdm import tqdm
 from .map_based_model import MapBasedModel
 from .utils.utils_data import get_points
 from .utils.utils_models import fit_gpr_silent
+from .utils.utils_nostr import download_nostr_points
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -63,20 +64,19 @@ class GPMap(MapBasedModel):
 
         self.cache_dir = f"{HERE}/cache"
 
-        os.makedirs(f"{self.cache_dir}/hitchmap", exist_ok=True)
-        self.points_path = f"{HERE}/cache/hitchmap/dump.sqlite"
-        hitchmap_url = "https://hitchmap.com/dump.sqlite"
+        os.makedirs(f"{self.cache_dir}/nostr", exist_ok=True)
+        self.points_path = f"{self.cache_dir}/nostr/rides.sqlite"
+        # Ride records are published to Nostr as kind-36820 events following the
+        # hitchhiking-data-standard. Fetch them and cache locally as a sqlite
+        # `points` table for get_points to consume.
         try:
-            response = requests.get(hitchmap_url)
-            response.raise_for_status()  # Check for HTTP request errors
-            with open(self.points_path, "wb") as file:
-                file.write(response.content)
-                logger.info(f"Downloaded Hitchmap data to: {self.points_path}")
+            written = download_nostr_points(self.points_path)
+            logger.info(f"Downloaded {written} ride points from Nostr to: {self.points_path}")
         except Exception as e:
-            logger.info(f"Failed to download Hitchmap data with {e}. Might be that on older version is still available.")
+            logger.info(f"Failed to download Nostr data with {e}. Might be that an older version is still available.")
 
         if not os.path.isfile(self.points_path):
-            raise FileNotFoundError(f"No Hitchmap data found at {self.points_path}.")
+            raise FileNotFoundError(f"No ride data found at {self.points_path}.")
 
         if os.path.exists("models/kernel.pkl"):
             self.gpr_path = "models/kernel.pkl"
